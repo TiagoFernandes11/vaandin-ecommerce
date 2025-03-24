@@ -15,17 +15,7 @@ import java.util.function.Consumer;
 public class MainView extends VerticalLayout {
 
     public MainView(ProdutoService produtoService) {
-        pegarLarguraDaTela(largura -> {
-            Vitrine vitrine = new Vitrine(produtoService, largura);
-            add(vitrine);
-        });
-    }
-
-    private void pegarLarguraDaTela(Consumer<Integer> callback) {
-        UI.getCurrent().getPage().executeJs("return window.innerWidth;")
-                .then(width -> {
-                    Integer largura = (int) ((elemental.json.JsonNumber) width).asNumber();
-                    callback.accept(largura);  // Passa o valor para o callback
-                });
+        Vitrine vitrine = new Vitrine(produtoService);
+        add(vitrine);
     }
 }

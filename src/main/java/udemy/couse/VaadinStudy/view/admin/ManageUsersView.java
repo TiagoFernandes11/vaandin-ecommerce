@@ -43,7 +43,7 @@ public class ManageUsersView extends VerticalLayout {
 
         listaUsuarios.setMultiSort(true);
 
-        atualizarListaUsuarios();
+        atualizarLista();
         add(gridTitle, listaUsuarios);
     }
 
@@ -67,7 +67,7 @@ public class ManageUsersView extends VerticalLayout {
             if(validarInput(usuario)){
                 if(usuarioService.update(usuario)){
                     Notification.show("Usuario " + usuario.getId() + " atualizado");
-                    atualizarListaUsuarios();
+                    atualizarLista();
                     dialog.close();
                 } else {
                     abrirDialogoDeErro("O email " + usuario.getEmail() + " já está cadastrado");
@@ -114,7 +114,7 @@ public class ManageUsersView extends VerticalLayout {
             usuarioService.delete(usuario);
             Notification.show("Usuário " + usuario.getEmail() + " removido");
             dialog.close();
-            atualizarListaUsuarios();
+            atualizarLista();
         });
 
         var botaoCancelar = new Button("Cancelar", event -> {
@@ -139,7 +139,7 @@ public class ManageUsersView extends VerticalLayout {
         }
     }
 
-    private void atualizarListaUsuarios(){
+    private void atualizarLista(){
         listaUsuarios.setItems(usuarioService.findAll());
     }
 }

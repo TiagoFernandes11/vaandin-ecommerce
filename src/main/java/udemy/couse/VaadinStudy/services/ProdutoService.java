@@ -6,6 +6,8 @@ import udemy.couse.VaadinStudy.entities.Produto;
 import udemy.couse.VaadinStudy.repository.ProdutoRepository;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class ProdutoService {
@@ -18,10 +20,19 @@ public class ProdutoService {
     }
 
     public boolean create(Produto produto){
-        if(produtoRepository.findBySku(produto.getSku()).isPresent()){
+        Optional<Produto> produtoDB = produtoRepository.findBySku(produto.getSku());
+        if(produtoDB.isPresent()){
+            if(Objects.equals(produtoDB.get().getId(), produto.getId())){
+                produtoRepository.save(produto);
+                return true;
+            }
             return false;
         }
         produtoRepository.save(produto);
         return true;
+    }
+
+    public void delete(Produto produto){
+        produtoRepository.delete(produto);
     }
 }

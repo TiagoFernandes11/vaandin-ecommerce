@@ -16,7 +16,6 @@ import com.vaadin.flow.component.upload.receivers.FileBuffer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import udemy.couse.VaadinStudy.entities.Produto;
-import udemy.couse.VaadinStudy.entities.Usuario;
 import udemy.couse.VaadinStudy.services.ProdutoService;
 
 import java.io.IOException;

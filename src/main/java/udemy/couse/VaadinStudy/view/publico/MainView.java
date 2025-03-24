@@ -1,24 +1,31 @@
 package udemy.couse.VaadinStudy.view.publico;
 
-import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
-import udemy.couse.VaadinStudy.repository.ProdutoRepository;
 import udemy.couse.VaadinStudy.services.ProdutoService;
+import udemy.couse.VaadinStudy.view.components.Vitrine;
 
-import java.io.ByteArrayInputStream;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 @Route(value = "")
 @PageTitle("Home")
 public class MainView extends VerticalLayout {
 
-    public MainView(ProdutoRepository produtoRepository) {
-        StreamResource streamResource = new StreamResource("imagem.jpg", () -> new ByteArrayInputStream(produtoRepository.findBySku(1234567890).get().getImagem()));
-        Image image = new Image();
-        image.setSrc(streamResource);
+    public MainView(ProdutoService produtoService) {
+        pegarLarguraDaTela(largura -> {
+            Vitrine vitrine = new Vitrine(produtoService, largura);
+            add(vitrine);
+        });
+    }
 
-        add(image);
+    private void pegarLarguraDaTela(Consumer<Integer> callback) {
+        UI.getCurrent().getPage().executeJs("return window.innerWidth;")
+                .then(width -> {
+                    Integer largura = (int) ((elemental.json.JsonNumber) width).asNumber();
+                    callback.accept(largura);  // Passa o valor para o callback
+                });
     }
 }

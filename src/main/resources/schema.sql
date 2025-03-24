@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS usuario (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nome_completo VARCHAR(255),
+    email VARCHAR(255),
+    senha VARCHAR(255)
+);
+
+CREATE TABLE Produto (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    sku BIGINT NOT NULL,
+    estoque BIGINT NOT NULL,
+    preco DOUBLE NOT NULL,
+    imagem LONGBLOB
+);

@@ -12,9 +12,11 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import jakarta.annotation.security.RolesAllowed;
 import udemy.couse.VaadinStudy.entities.Usuario;
 import udemy.couse.VaadinStudy.services.UsuarioService;
 
+@RolesAllowed("ADMIN")
 @PageTitle("Manage users")
 @Route(value = "/admin/users", layout = AdminLayout.class)
 public class ManageUsersView extends VerticalLayout {

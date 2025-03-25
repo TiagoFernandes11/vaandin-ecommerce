@@ -1,6 +1,7 @@
 package udemy.couse.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import udemy.couse.VaadinStudy.entities.Usuario;
 import udemy.couse.VaadinStudy.repository.UsuarioRepository;
@@ -14,6 +15,9 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public Usuario find(String email){
         Optional<Usuario> optionalUsuario = usuarioRepository.findByEmail(email);
@@ -30,6 +34,7 @@ public class UsuarioService {
     }
 
     public boolean register(Usuario usuario){
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         if(usuarioRepository.findByEmail(usuario.getEmail()).isPresent()){
             return false;
         }

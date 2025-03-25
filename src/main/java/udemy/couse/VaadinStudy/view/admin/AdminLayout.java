@@ -8,7 +8,9 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import jakarta.annotation.security.RolesAllowed;
 
+@RolesAllowed("ADMIN")
 public class AdminLayout extends AppLayout {
 
     private H2 viewName;

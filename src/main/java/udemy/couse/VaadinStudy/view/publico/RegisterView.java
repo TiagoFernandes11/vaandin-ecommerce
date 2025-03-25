@@ -3,11 +3,15 @@ package udemy.couse.VaadinStudy.view.publico;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import udemy.couse.VaadinStudy.services.UsuarioService;
+import udemy.couse.VaadinStudy.view.components.MainLayout;
 import udemy.couse.VaadinStudy.view.components.RegisterForm;
 
-@Route(value = "/registrar")
+
 @PageTitle("Registrar")
+@Route(value = "/registrar", layout = MainLayout.class)
+@AnonymousAllowed
 public class RegisterView extends VerticalLayout {
 
     public RegisterView(UsuarioService usuarioService){

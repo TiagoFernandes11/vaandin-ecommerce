@@ -2,8 +2,6 @@ package udemy.couse.VaadinStudy.view.components;
 
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import udemy.couse.VaadinStudy.entities.Produto;
 import udemy.couse.VaadinStudy.services.ProdutoService;

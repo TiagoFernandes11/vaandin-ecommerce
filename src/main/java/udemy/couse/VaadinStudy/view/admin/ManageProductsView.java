@@ -15,6 +15,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.RolesAllowed;
 import udemy.couse.VaadinStudy.entities.Produto;
 import udemy.couse.VaadinStudy.services.ProdutoService;
 
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
+@RolesAllowed("ADMIN")
 @PageTitle("Manage products")
 @Route(value = "/admin/products", layout = AdminLayout.class)
 public class ManageProductsView extends VerticalLayout {

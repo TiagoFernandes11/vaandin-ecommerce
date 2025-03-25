@@ -1,24 +1,35 @@
-package udemy.couse.VaadinStudy.view.publico;
+package udemy.couse.VaadinStudy.view.components;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import org.springframework.security.core.userdetails.UserDetails;
+import udemy.couse.VaadinStudy.view.admin.ManageProductsView;
+import udemy.couse.VaadinStudy.view.publico.LoginView;
+import udemy.couse.VaadinStudy.view.publico.MainView;
+import udemy.couse.VaadinStudy.view.publico.RegisterView;
 
-@Layout
+@AnonymousAllowed
 public class MainLayout extends AppLayout {
 
+    private final transient AuthenticationContext authContext;
     private H2 viewTitle;
 
-    public MainLayout(){
+    public MainLayout(AuthenticationContext authContext){
+        this.authContext = authContext;
         setPrimarySection(Section.DRAWER);
         createHeader();
         createDrawer();
@@ -40,7 +51,16 @@ public class MainLayout extends AppLayout {
         var linkLogin = new SideNavItem("login", LoginView.class);
         var linkRegistrar = new SideNavItem("registrar", RegisterView.class);
 
-        var header = new Header( drawerToggle, this.viewTitle, linkLogin, linkRegistrar);
+        var header = this.authContext.getAuthenticatedUser(UserDetails.class).map(user -> {
+            Span loggedUser = new Span("Welcome back, " + user.getUsername());
+            loggedUser.getStyle().set("margin-right", "20px");
+            Button logout = new Button("logout", event -> {
+                this.authContext.logout();
+            });
+            return new Header(drawerToggle, this.viewTitle, loggedUser, logout);
+        }).orElseGet(() -> new Header( drawerToggle, this.viewTitle, linkLogin, linkRegistrar));
+
+
         header.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.Display.FLEX,
                 LumoUtility.Padding.End.MEDIUM, LumoUtility.Width.FULL);
 
@@ -55,9 +75,10 @@ public class MainLayout extends AppLayout {
 
         var sideNav = new SideNav();
 
-        var item1 = new SideNavItem("Main");
+        var item1 = new SideNavItem("Home");
         var item2 = new SideNavItem("Cadastro e login");
-        sideNav.addItem(item1, item2);
+        var item3 = new SideNavItem("Tela de administração", ManageProductsView.class);
+        sideNav.addItem(item1, item2, item3);
 
         var subItem11 = new SideNavItem("Main", MainView.class);
         item1.addItem(subItem11);

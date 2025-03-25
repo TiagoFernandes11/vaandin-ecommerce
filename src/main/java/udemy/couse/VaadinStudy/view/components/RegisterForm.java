@@ -9,6 +9,8 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import udemy.couse.VaadinStudy.entities.Usuario;
 import udemy.couse.VaadinStudy.services.UsuarioService;
@@ -78,6 +80,7 @@ public class RegisterForm extends Composite<Div> implements HasElement {
         if(foiCadastrado){
             UI.getCurrent().navigate(MainView.class);
             Notification.show("Registrado com sucesso");
+            System.out.println(usuarioService.find(usuario.getId()));
         } else {
             Notification.show("Já existe um cadastro com esse email");
         }

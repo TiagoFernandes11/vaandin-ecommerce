@@ -5,6 +5,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.spring.security.AuthenticationContext;
+import udemy.couse.VaadinStudy.services.CarrinhoService;
+import udemy.couse.VaadinStudy.services.ClienteService;
 import udemy.couse.VaadinStudy.services.ProdutoService;
 import udemy.couse.VaadinStudy.view.components.MainLayout;
 import udemy.couse.VaadinStudy.view.components.Vitrine;
@@ -17,8 +20,11 @@ import java.util.function.Consumer;
 @AnonymousAllowed
 public class MainView extends VerticalLayout {
 
-    public MainView(ProdutoService produtoService) {
-        Vitrine vitrine = new Vitrine(produtoService);
+    private final transient AuthenticationContext authenticationContext;
+
+    public MainView(AuthenticationContext authenticationContext, ProdutoService produtoService, ClienteService clienteService, CarrinhoService carrinhoService) {
+        this.authenticationContext = authenticationContext;
+        Vitrine vitrine = new Vitrine(this.authenticationContext, produtoService, clienteService, carrinhoService);
         add(vitrine);
     }
 }

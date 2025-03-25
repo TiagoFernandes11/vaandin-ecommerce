@@ -19,6 +19,10 @@ public class ProdutoService {
         return produtoRepository.findAll();
     }
 
+    public Produto find(long idProduto){
+        return produtoRepository.findById(idProduto).orElse(null);
+    }
+
     public boolean create(Produto produto){
         Optional<Produto> produtoDB = produtoRepository.findBySku(produto.getSku());
         if(produtoDB.isPresent()){

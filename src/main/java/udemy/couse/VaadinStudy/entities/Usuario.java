@@ -20,4 +20,5 @@ public class Usuario {
     private String nomeCompleto;
     private String email;
     private String senha;
+    private String role;
 }

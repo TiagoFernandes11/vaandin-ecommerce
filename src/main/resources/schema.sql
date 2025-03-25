@@ -1,8 +1,9 @@
 CREATE TABLE IF NOT EXISTS usuario (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nome_completo VARCHAR(255),
-    email VARCHAR(255),
-    senha VARCHAR(255)
+    nome_completo VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    role VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE Produto (

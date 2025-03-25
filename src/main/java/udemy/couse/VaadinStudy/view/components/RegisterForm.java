@@ -75,7 +75,7 @@ public class RegisterForm extends Composite<Div> implements HasElement {
     }
 
     public void registrar(String nome, String email, String senha){
-        Usuario usuario = new Usuario(null, nome, email, senha);
+        Usuario usuario = new Usuario(null, nome, email, senha, "ROLE_USER");
         boolean foiCadastrado = usuarioService.register(usuario);
         if(foiCadastrado){
             UI.getCurrent().navigate(MainView.class);

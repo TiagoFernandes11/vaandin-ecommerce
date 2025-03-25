@@ -16,6 +16,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import udemy.couse.VaadinStudy.view.admin.ManageProductsView;
 import udemy.couse.VaadinStudy.view.publico.LoginView;
@@ -51,15 +54,23 @@ public class MainLayout extends AppLayout {
         var linkLogin = new SideNavItem("login", LoginView.class);
         var linkRegistrar = new SideNavItem("registrar", RegisterView.class);
 
-        var header = this.authContext.getAuthenticatedUser(UserDetails.class).map(user -> {
-            Span loggedUser = new Span("Welcome back, " + user.getUsername());
+        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+        Header header = new Header();
+
+        if(this.authContext.isAuthenticated()){
+            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+            Span loggedUser = new Span("Welcome back, " + userName);
             loggedUser.getStyle().set("margin-right", "20px");
             Button logout = new Button("logout", event -> {
                 this.authContext.logout();
             });
-            return new Header(drawerToggle, this.viewTitle, loggedUser, logout);
-        }).orElseGet(() -> new Header( drawerToggle, this.viewTitle, linkLogin, linkRegistrar));
+            header.add(drawerToggle, this.viewTitle, loggedUser, logout);
+        } else {
+            header.add(drawerToggle, this.viewTitle, linkLogin, linkRegistrar);
+        }
 
+        addToNavbar(header);
 
         header.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.Display.FLEX,
                 LumoUtility.Padding.End.MEDIUM, LumoUtility.Width.FULL);

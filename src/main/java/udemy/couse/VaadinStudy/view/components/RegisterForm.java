@@ -9,11 +9,10 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import udemy.couse.VaadinStudy.entities.Usuario;
-import udemy.couse.VaadinStudy.services.UsuarioService;
+import udemy.couse.VaadinStudy.constants.Role;
+import udemy.couse.VaadinStudy.entities.Cliente;
+import udemy.couse.VaadinStudy.services.ClienteService;
 import udemy.couse.VaadinStudy.view.publico.MainView;
 
 import java.util.ArrayList;
@@ -22,11 +21,11 @@ import java.util.List;
 @Component
 public class RegisterForm extends Composite<Div> implements HasElement {
 
-    private final UsuarioService usuarioService;
+    private final ClienteService clienteService;
 
-    public RegisterForm(UsuarioService usuarioService){
+    public RegisterForm(ClienteService clienteService){
         //Injeção de dependencia
-        this.usuarioService = usuarioService;
+        this.clienteService = clienteService;
 
         //declaração dos elementos
         var form = new VerticalLayout();
@@ -75,12 +74,11 @@ public class RegisterForm extends Composite<Div> implements HasElement {
     }
 
     public void registrar(String nome, String email, String senha){
-        Usuario usuario = new Usuario(null, nome, email, senha, "ROLE_USER");
-        boolean foiCadastrado = usuarioService.register(usuario);
+        Cliente cliente = new Cliente(null, nome, email, senha, Role.USER);
+        boolean foiCadastrado = clienteService.create(cliente);
         if(foiCadastrado){
             UI.getCurrent().navigate(MainView.class);
             Notification.show("Registrado com sucesso");
-            System.out.println(usuarioService.find(usuario.getId()));
         } else {
             Notification.show("Já existe um cadastro com esse email");
         }

@@ -1,4 +1,4 @@
-package udemy.couse.VaadinStudy.view.admin;
+package udemy.couse.VaadinStudy.view.components;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -9,8 +9,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
+import udemy.couse.VaadinStudy.view.publico.MainView;
 
-@RolesAllowed("ADMIN")
+@RolesAllowed("ROLE_ADMIN")
 public class AdminLayout extends AppLayout {
 
     private H2 viewName;
@@ -33,7 +34,7 @@ public class AdminLayout extends AppLayout {
         DrawerToggle drawerToggle = new DrawerToggle();
         drawerToggle.addClassNames(LumoUtility.Padding.MEDIUM);
 
-        viewName.addClassNames(LumoUtility.FontWeight.THIN, LumoUtility.FontSize.LARGE);
+        viewName.addClassNames(LumoUtility.FontWeight.MEDIUM, LumoUtility.FontSize.LARGE);
 
         addToNavbar(drawerToggle, this.viewName);
     }
@@ -42,6 +43,7 @@ public class AdminLayout extends AppLayout {
         var title = new H3("Titulo");
         title.addClassNames(LumoUtility.Padding.SMALL, LumoUtility.FontSize.MEDIUM);
 
+        var home = new SideNavItem("Home", MainView.class);
         var gerenciar = new SideNavItem("Gerenciar");
         var gerenciarUsuarios = new SideNavItem("Usuarios", "/admin/users");
         var gerenciarProdutos = new SideNavItem("Produtos", "/admin/products");
@@ -49,9 +51,9 @@ public class AdminLayout extends AppLayout {
         gerenciarUsuarios.addClassNames(LumoUtility.FontSize.MEDIUM);
         gerenciarProdutos.addClassNames(LumoUtility.FontSize.MEDIUM);
 
-        gerenciar.addItem(gerenciarUsuarios, gerenciarProdutos);
+        gerenciar.addItem( gerenciarUsuarios, gerenciarProdutos);
 
-        addToDrawer(title, gerenciar);
+        addToDrawer(title, gerenciar, home);
     }
 
     private String getCurrentViewName(){

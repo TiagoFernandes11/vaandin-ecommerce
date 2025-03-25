@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS usuario (
+CREATE TABLE IF NOT EXISTS cliente (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nome_completo VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     role VARCHAR(30) NOT NULL
 );
 
-CREATE TABLE Produto (
+CREATE TABLE produto (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     sku BIGINT NOT NULL,
@@ -14,3 +14,12 @@ CREATE TABLE Produto (
     preco DOUBLE NOT NULL,
     imagem LONGBLOB
 );
+
+CREATE TABLE carrinho (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente BIGINT NOT NULL,
+    produtos JSON NOT NULL,
+    subtotal DOUBLE NOT NULL,
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id)
+);
+

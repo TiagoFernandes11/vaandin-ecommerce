@@ -54,8 +54,6 @@ public class MainLayout extends AppLayout {
         var linkLogin = new SideNavItem("login", LoginView.class);
         var linkRegistrar = new SideNavItem("registrar", RegisterView.class);
 
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-
         Header header = new Header();
 
         if(this.authContext.isAuthenticated()){
@@ -88,8 +86,12 @@ public class MainLayout extends AppLayout {
 
         var item1 = new SideNavItem("Home");
         var item2 = new SideNavItem("Cadastro e login");
-        var item3 = new SideNavItem("Tela de administração", ManageProductsView.class);
-        sideNav.addItem(item1, item2, item3);
+        if(authContext.hasRole("ADMIN")){
+            var item3 = new SideNavItem("Tela de administração", ManageProductsView.class);
+            sideNav.addItem(item1, item2, item3);
+        } else{
+            sideNav.addItem(item1, item2);
+        }
 
         var subItem11 = new SideNavItem("Main", MainView.class);
         item1.addItem(subItem11);

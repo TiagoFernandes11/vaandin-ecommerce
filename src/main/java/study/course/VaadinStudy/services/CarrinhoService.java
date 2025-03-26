@@ -62,6 +62,13 @@ public class CarrinhoService {
         }
     }
 
+    public void removerProduto(String email, Long idProduto){
+        Cliente cliente = clienteRepository.findByEmail(email).orElse(null);
+        if(!Objects.isNull(cliente)){
+            removerProduto(cliente.getId(), idProduto);
+        }
+    }
+
     public void adicionarProduto(Long idCliente, Long idProduto) {
         Carrinho carrinho = carrinhoRepository.findByIdCliente(idCliente).orElse(null);
         Produto produto = produtoRepository.findById(idProduto).orElse(null);
@@ -96,5 +103,41 @@ public class CarrinhoService {
         }
     }
 
+    private void removerProduto(Long idCliente, Long idProduto){
+        Carrinho carrinho = carrinhoRepository.findByIdCliente(idCliente).orElse(null);
+        Produto produto = produtoRepository.findById(idProduto).orElse(null);
+        ItemCarrinho itemCarrinho = null;
 
+        if(!Objects.isNull(carrinho) && !Objects.isNull(produto)){
+            for(ItemCarrinho item : carrinho.getItens()){
+                if(Objects.equals(item.getProduto().getSku(), produto.getSku())){
+                    itemCarrinho = item;
+                }
+            }
+
+            if(carrinho.getItens().contains(itemCarrinho)){
+                ItemCarrinho item = carrinho.getItens().get(carrinho.getItens().indexOf(itemCarrinho));
+                if(item.getQuantidade() <= 1){
+                    carrinho.getItens().remove(item);
+                    carrinhoRepository.save(carrinho);
+                    if(carrinho.getItens().isEmpty()){
+                        carrinhoRepository.delete(carrinho);
+                    }
+                    itemCarrinhoRepository.delete(item);
+                    return;
+                } else{
+                    int quantidade = item.getQuantidade();
+                    item.setQuantidade(quantidade - 1);
+                    item.setSubTotal(item.getProduto().getPreco() * item.getQuantidade());
+                    itemCarrinhoRepository.save(itemCarrinho);
+                }
+            }
+
+            for(ItemCarrinho item : carrinho.getItens()){
+                carrinho.setTotal(carrinho.getTotal() + item.getSubTotal());
+            }
+
+            carrinhoRepository.save(carrinho);
+        }
+    }
 }

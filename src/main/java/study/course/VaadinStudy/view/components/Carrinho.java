@@ -21,9 +21,23 @@ import java.util.List;
 
 public class Carrinho extends VerticalLayout {
 
+    private AuthenticationContext authenticationContext;
+    private ItemCarrinhoService itemCarrinhoService;
+    private CarrinhoService carrinhoService;
+    private VerticalLayout itensContainer;
+
     public Carrinho(AuthenticationContext authenticationContext, ItemCarrinhoService itemCarrinhoService, CarrinhoService carrinhoService){
+        this.authenticationContext= authenticationContext;
+        this.itemCarrinhoService = itemCarrinhoService;
+        this.carrinhoService = carrinhoService;
+        renderizarCarrinho();
+    }
+
+    private void renderizarCarrinho(){
+        removeAll();
+
         H2 titulo = new H2("Carrinho");
-        VerticalLayout itensContainer = new VerticalLayout();
+        itensContainer = new VerticalLayout();
 
         String emailCliente = authenticationContext.getPrincipalName().orElse(null);
 
@@ -50,9 +64,11 @@ public class Carrinho extends VerticalLayout {
 
                 Button adicionarBotao = new Button("Adicionar", event -> {
                     carrinhoService.adicionarProduto(emailCliente, item.getProduto().getId());
+                    renderizarCarrinho();
                 });
                 Button removerBotao = new Button("Remover", event -> {
-
+                    carrinhoService.removerProduto(emailCliente, item.getProduto().getId());
+                    renderizarCarrinho();
                 });
 
                 nomeQuantidadeContainer.add(nomeProduto, quantidade);

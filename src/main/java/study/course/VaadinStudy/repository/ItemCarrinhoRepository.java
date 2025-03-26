@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import study.course.VaadinStudy.entities.ItemCarrinho;
 
 @Repository
-public interface ProdutoCarrinhoRepository extends JpaRepository<ItemCarrinho, Long> {
+public interface ItemCarrinhoRepository extends JpaRepository<ItemCarrinho, Long> {
 }

@@ -20,7 +20,7 @@ public class Carrinho {
     private Long idCliente;
 
     @OneToMany(fetch = FetchType.EAGER)
-    private List<ItemCarrinho> produtos;
+    private List<ItemCarrinho> itens;
 
     private Double subtotal;
 }

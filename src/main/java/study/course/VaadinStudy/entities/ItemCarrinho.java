@@ -20,4 +20,6 @@ public class ItemCarrinho {
     private Produto produto;
 
     private int quantidade;
+
+    private Double subTotal;
 }

@@ -22,5 +22,5 @@ public class Carrinho {
     @OneToMany(fetch = FetchType.EAGER)
     private List<ItemCarrinho> itens;
 
-    private Double subtotal;
+    private Double total;
 }

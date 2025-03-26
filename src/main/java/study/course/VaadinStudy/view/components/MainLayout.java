@@ -80,7 +80,7 @@ public class MainLayout extends AppLayout {
 
         var sideNav = new SideNav();
 
-        var item1 = new SideNavItem("Home");
+        var item1 = new SideNavItem("Home", MainView.class);
         var item2 = new SideNavItem("Cadastro e login");
         if(authContext.hasRole("ADMIN")){
             var item3 = new SideNavItem("Tela de administração", ManageProductsView.class);
@@ -88,9 +88,6 @@ public class MainLayout extends AppLayout {
         } else{
             sideNav.addItem(item1, item2);
         }
-
-        var subItem11 = new SideNavItem("Main", MainView.class);
-        item1.addItem(subItem11);
 
         var subItem21 = new SideNavItem("Login", LoginView.class);
         var subItem22 = new SideNavItem("Cadastro", RegisterView.class);

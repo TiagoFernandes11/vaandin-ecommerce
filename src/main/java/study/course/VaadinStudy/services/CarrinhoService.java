@@ -55,28 +55,40 @@ public class CarrinhoService {
         carrinhoRepository.save(carrinho);
     }
 
+    public void adicionarProduto(String email, Long idProduto){
+        Cliente cliente = clienteRepository.findByEmail(email).orElse(null);
+        if(!Objects.isNull(cliente)){
+            adicionarProduto(cliente.getId(), idProduto);
+        }
+    }
+
     public void adicionarProduto(Long idCliente, Long idProduto) {
         Carrinho carrinho = carrinhoRepository.findByIdCliente(idCliente).orElse(null);
         Produto produto = produtoRepository.findById(idProduto).orElse(null);
         ItemCarrinho itemCarrinho = null;
 
         if(!Objects.isNull(carrinho) && !Objects.isNull(produto)){
-            for(ItemCarrinho produtoCar : carrinho.getItens()){
-                if(Objects.equals(produtoCar.getProduto().getSku(), produto.getSku())){
-                    itemCarrinho = produtoCar;
+            for(ItemCarrinho item : carrinho.getItens()){
+                if(Objects.equals(item.getProduto().getSku(), produto.getSku())){
+                    itemCarrinho = item;
                 }
             }
 
             if(carrinho.getItens().contains(itemCarrinho)){
-                int quantidade = carrinho.getItens().get(carrinho.getItens().indexOf(itemCarrinho)).getQuantidade();
-                carrinho.getItens().get(carrinho.getItens().indexOf(itemCarrinho)).setQuantidade(quantidade + 1);
+                ItemCarrinho item = carrinho.getItens().get(carrinho.getItens().indexOf(itemCarrinho));
+                int quantidade = item.getQuantidade();
+                item.setQuantidade(quantidade + 1);
+                item.setSubTotal(item.getProduto().getPreco() * item.getQuantidade());
                 itemCarrinhoRepository.save(itemCarrinho);
             } else {
-                ItemCarrinho novoItemCarrinho = new ItemCarrinho(null, produto, 1);
+                ItemCarrinho novoItemCarrinho = new ItemCarrinho(null, produto, 1, produto.getPreco());
                 itemCarrinhoRepository.save(novoItemCarrinho);
                 carrinho.getItens().add(novoItemCarrinho);
             }
 
+            for(ItemCarrinho item : carrinho.getItens()){
+                carrinho.setTotal(carrinho.getTotal() + item.getSubTotal());
+            }
             carrinhoRepository.save(carrinho);
         } else {
             this.create(idCliente);

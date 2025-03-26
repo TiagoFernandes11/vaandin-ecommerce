@@ -25,10 +25,10 @@ public class Carrinho extends VerticalLayout {
         H2 titulo = new H2("Carrinho");
         VerticalLayout itensContainer = new VerticalLayout();
 
-        String email = authenticationContext.getPrincipalName().orElse(null);
+        String emailCliente = authenticationContext.getPrincipalName().orElse(null);
 
-        if(carrinhoService.exists(email)){
-            List<ItemCarrinho> itens = itemCarrinhoService.findAllItems(email);
+        if(carrinhoService.exists(emailCliente)){
+            List<ItemCarrinho> itens = itemCarrinhoService.findAllItems(emailCliente);
 
             for(ItemCarrinho item : itens){
                 HorizontalLayout imagemInfoContainer = new HorizontalLayout();
@@ -36,7 +36,7 @@ public class Carrinho extends VerticalLayout {
                 Produto produto = item.getProduto();
                 Span nomeProduto = new Span(item.getProduto().getNome());
                 Span quantidade = new Span("Quantidade: " + item.getQuantidade());
-                Span valor = new Span("R$ " + produto.getPreco() * item.getQuantidade());
+                Span valor = new Span("R$ " + item.getSubTotal());
 
                 StreamResource resource = new StreamResource(produto.getNome(), () -> new ByteArrayInputStream(produto.getImagem()));
                 Image imagemProduto = new Image();
@@ -48,8 +48,15 @@ public class Carrinho extends VerticalLayout {
 
                 imagemInfoContainer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.CENTER);
 
+                Button adicionarBotao = new Button("Adicionar", event -> {
+                    carrinhoService.adicionarProduto(emailCliente, item.getProduto().getId());
+                });
+                Button removerBotao = new Button("Remover", event -> {
+
+                });
+
                 nomeQuantidadeContainer.add(nomeProduto, quantidade);
-                imagemInfoContainer.add(imagemProduto, nomeQuantidadeContainer, valor);
+                imagemInfoContainer.add(imagemProduto, removerBotao, nomeQuantidadeContainer, adicionarBotao, valor);
                 itensContainer.add(imagemInfoContainer);
             }
             Button finalizarButton = new Button("Finalizar compra", event -> {

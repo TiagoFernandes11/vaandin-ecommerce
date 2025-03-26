@@ -1,0 +1,26 @@
+package study.couse.VaadinStudy.entities;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+public class Carrinho {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Long idCliente;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<ItemCarrinho> produtos;
+
+    private Double subtotal;
+}

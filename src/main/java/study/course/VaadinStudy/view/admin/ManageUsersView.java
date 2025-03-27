@@ -26,7 +26,7 @@ import java.util.Objects;
 public class ManageUsersView extends VerticalLayout {
 
     private final UsuarioService usuarioService;
-    private Grid<Usuario> listaUsuarios;
+    private final Grid<Usuario> listaUsuarios;
 
     public ManageUsersView(UsuarioService usuarioService){
         this.usuarioService = usuarioService;

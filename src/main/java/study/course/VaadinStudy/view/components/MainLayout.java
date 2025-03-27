@@ -1,5 +1,6 @@
 package study.course.VaadinStudy.view.components;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
@@ -7,6 +8,8 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
@@ -17,6 +20,7 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.springframework.security.core.context.SecurityContextHolder;
 import study.course.VaadinStudy.view.admin.ManageProductsView;
+import study.course.VaadinStudy.view.publico.CarrinhoView;
 import study.course.VaadinStudy.view.publico.LoginView;
 import study.course.VaadinStudy.view.publico.MainView;
 import study.course.VaadinStudy.view.publico.RegisterView;
@@ -50,7 +54,17 @@ public class MainLayout extends AppLayout {
         var linkLogin = new SideNavItem("login", LoginView.class);
         var linkRegistrar = new SideNavItem("registrar", RegisterView.class);
 
+        Icon cartIcon = VaadinIcon.CART.create();
+
+        Button buttonCartIcon = new Button(cartIcon, event -> {
+            UI.getCurrent().navigate(CarrinhoView.class);
+        });
+
+        buttonCartIcon.getStyle().set("margin-right", "10px");
+
         Header header = new Header();
+
+        header.add(drawerToggle, this.viewTitle);
 
         if(this.authContext.isAuthenticated()){
             String userName = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -59,9 +73,9 @@ public class MainLayout extends AppLayout {
             Button logout = new Button("logout", event -> {
                 this.authContext.logout();
             });
-            header.add(drawerToggle, this.viewTitle, loggedUser, logout);
+            header.add(loggedUser, buttonCartIcon, logout);
         } else {
-            header.add(drawerToggle, this.viewTitle, linkLogin, linkRegistrar);
+            header.add(buttonCartIcon, linkLogin, linkRegistrar);
         }
 
         addToNavbar(header);

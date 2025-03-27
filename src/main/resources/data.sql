@@ -1,4 +1,4 @@
---INSERT INTO cliente (nome_completo, email, senha, role)
+--INSERT INTO usuario (nome_completo, email, senha, role)
 --VALUES
 --('ADMIN', 'admin@email.com', '$2a$10$wSHVeT/en5vDnEqxLkmhGeZr8SwhU1Y4VYFfsXENJVcNoZ3q.MAWi', 'ROLE_ADMIN'),
 --('Maria Oliveira', 'maria.oliveira@email.com', '$2a$10$wSHVeT/en5vDnEqxLkmhGeZr8SwhU1Y4VYFfsXENJVcNoZ3q.MAWi', 'ROLE_USER'),

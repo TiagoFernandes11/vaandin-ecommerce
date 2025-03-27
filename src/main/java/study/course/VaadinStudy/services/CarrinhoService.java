@@ -7,9 +7,9 @@ import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.entities.Produto;
 import study.course.VaadinStudy.entities.ItemCarrinho;
 import study.course.VaadinStudy.repository.CarrinhoRepository;
-import study.course.VaadinStudy.repository.UsuarioRepository;
 import study.course.VaadinStudy.repository.ItemCarrinhoRepository;
 import study.course.VaadinStudy.repository.ProdutoRepository;
+import study.course.VaadinStudy.repository.UsuarioRepository;
 
 import java.util.ArrayList;
 import java.util.List;

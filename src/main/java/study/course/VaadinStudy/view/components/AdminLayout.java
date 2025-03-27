@@ -45,13 +45,15 @@ public class AdminLayout extends AppLayout {
 
         var home = new SideNavItem("Home", MainView.class);
         var gerenciar = new SideNavItem("Gerenciar");
+        var gerenciarAdministradores = new SideNavItem("Administradores", "/admin/administrators");
         var gerenciarUsuarios = new SideNavItem("Usuarios", "/admin/users");
         var gerenciarProdutos = new SideNavItem("Produtos", "/admin/products");
 
         gerenciarUsuarios.addClassNames(LumoUtility.FontSize.MEDIUM);
         gerenciarProdutos.addClassNames(LumoUtility.FontSize.MEDIUM);
+        gerenciarAdministradores.addClassNames(LumoUtility.FontSize.MEDIUM);
 
-        gerenciar.addItem( gerenciarUsuarios, gerenciarProdutos);
+        gerenciar.addItem( gerenciarAdministradores, gerenciarUsuarios, gerenciarProdutos);
 
         addToDrawer(title, gerenciar, home);
     }

@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class RegisterForm extends Composite<Div> implements HasElement {
 
-    private final ClienteService clienteService;
+    protected final ClienteService clienteService;
 
     public RegisterForm(ClienteService clienteService){
         //Injeção de dependencia

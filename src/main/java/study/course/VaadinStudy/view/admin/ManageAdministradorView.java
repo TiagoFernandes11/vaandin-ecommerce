@@ -11,7 +11,6 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import study.course.VaadinStudy.constants.Role;
 import study.course.VaadinStudy.entities.Cliente;
@@ -21,48 +20,45 @@ import study.course.VaadinStudy.view.components.AdminLayout;
 import java.util.Objects;
 
 @RolesAllowed("ROLE_ADMIN")
-@PageTitle("Administração usuários")
-@Route(value = "/admin/users", layout = AdminLayout.class)
-public class ManageUsersView extends VerticalLayout {
+@PageTitle("Administração administradores")
+@Route(value = "/admin/administrators", layout = AdminLayout.class)
+public class ManageAdministradorView extends VerticalLayout {
 
-    private final ClienteService clienteService;
-    private Grid<Cliente> listaUsuarios;
+    private ClienteService clienteService;
+    private Grid<Cliente> listaAdministradores;
 
-    public ManageUsersView(ClienteService clienteService){
+    public ManageAdministradorView(ClienteService clienteService){
         this.clienteService = clienteService;
-        var gridTitle = new H3("Lista de usuários ");
-        var criarUsuarioButton = new Button("Criar novo usuario", event -> {
-            abrirFormUsuario(new Cliente());
-        });
-        listaUsuarios = new Grid<>(Cliente.class, false);
-
-        listaUsuarios.addColumn(Cliente::getId).setHeader("Id").setSortable(true);
-        listaUsuarios.addColumn(Cliente::getNomeCompleto).setHeader("Nome").setSortable(true);
-        listaUsuarios.addColumn(Cliente::getEmail).setHeader("Email").setSortable(true);
-        listaUsuarios.addComponentColumn(usuario -> {
-            Button editarButton = new Button("Editar", event -> {
-                abrirFormUsuario(usuario);
-            });
-            Button deletarButton = new Button("Deletar", event -> {
-                abrirDialogoConfirmacaoExclusao(usuario);
-            });
-            return new HorizontalLayout(editarButton, deletarButton);
+        var titulo = new H3("Lista de administradores");
+        var adicionarProdutoButton = new Button("Criar novo administrador", event -> {
+            abrirFormAdmin(new Cliente());
         });
 
-        listaUsuarios.setHeight(LumoUtility.Height.AUTO);
+        listaAdministradores = new Grid<>(Cliente.class, false);
 
-        listaUsuarios.setMultiSort(true);
+        listaAdministradores.addColumn(Cliente::getId).setHeader("ID");
+        listaAdministradores.addColumn(Cliente::getEmail).setHeader("Email");
+        listaAdministradores.addColumn(Cliente::getNomeCompleto).setHeader("Nome");
+        listaAdministradores.addComponentColumn(cliente -> {
+            Button editarProduto = new Button("Editar", event -> {
+                abrirFormAdmin(cliente);
+            });
+            Button excluirProduto = new Button("Excluir", event -> {
+                abrirDialogoConfirmacaoExclusao(cliente);
+            });
+            return new HorizontalLayout(editarProduto, excluirProduto);
+        });
 
         atualizarLista();
-        add(gridTitle, criarUsuarioButton, listaUsuarios);
+        add(titulo, adicionarProdutoButton, listaAdministradores);
     }
 
-    private void abrirFormUsuario(Cliente cliente){
+    public void abrirFormAdmin(Cliente cliente){
         Dialog dialog = new Dialog();
         if(Objects.isNull(cliente.getId())){
-            dialog.setHeaderTitle("Novo usuário");
+            dialog.setHeaderTitle("Novo administrador");
         } else{
-            dialog.setHeaderTitle("Edição usuário");
+            dialog.setHeaderTitle("Edição administrador");
         }
 
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -91,7 +87,7 @@ public class ManageUsersView extends VerticalLayout {
                     cliente.setSenha(inputSenha.getValue());
                     if(validarInputComSenha(cliente)){
                         if(clienteService.create(cliente)){
-                            Notification.show("Usuario " + cliente.getEmail() + " criado");
+                            Notification.show("administrador " + cliente.getEmail() + " criado");
                             atualizarLista();
                             dialog.close();
                         } else {
@@ -106,7 +102,7 @@ public class ManageUsersView extends VerticalLayout {
             } else{
                 if(validarInput(cliente)){
                     if(clienteService.update(cliente)){
-                        Notification.show("Usuario id: " + cliente.getId() + " atualizado");
+                        Notification.show("Administrador id: " + cliente.getId() + " atualizado");
                         atualizarLista();
                         dialog.close();
                     } else {
@@ -125,22 +121,6 @@ public class ManageUsersView extends VerticalLayout {
         dialog.open();
     }
 
-    private void abrirDialogoDeErro(String erro){
-        Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Erro");
-
-        VerticalLayout verticalLayout = new VerticalLayout();
-
-        verticalLayout.add(erro);
-
-        verticalLayout.add(new Button("Ok", event -> {
-            dialog.close();
-        }));
-
-        dialog.add(verticalLayout);
-        dialog.open();
-    }
-
     private void abrirDialogoConfirmacaoExclusao(Cliente cliente){
         Dialog dialog = new Dialog();
 
@@ -152,7 +132,7 @@ public class ManageUsersView extends VerticalLayout {
 
         var botaoConfirmar = new Button("Confirmar", event -> {
             clienteService.delete(cliente);
-            Notification.show("Usuário " + cliente.getEmail() + " removido");
+            Notification.show("Produto: " + cliente.getEmail() + " removido");
             dialog.close();
             atualizarLista();
         });
@@ -163,12 +143,18 @@ public class ManageUsersView extends VerticalLayout {
 
         horizontalLayout.add(botaoConfirmar, botaoCancelar);
 
-        verticalLayout.add("Tem certeza de que quer excluir o usuario ?");
+        verticalLayout.add("Tem certeza de que quer excluir o administrador ?");
         verticalLayout.add(horizontalLayout);
 
         dialog.add(verticalLayout);
 
         dialog.open();
+    }
+
+    private void atualizarLista(){
+        this.listaAdministradores.setItems(clienteService.findAll()).addFilter(cliente -> {
+            return cliente.getRole().equals("ROLE_ADMIN");
+        });
     }
 
     private boolean validarInputComSenha(Cliente cliente){
@@ -187,9 +173,19 @@ public class ManageUsersView extends VerticalLayout {
         }
     }
 
-    private void atualizarLista(){
-        listaUsuarios.setItems(clienteService.findAll()).addFilter(cliente -> {
-            return Objects.equals(cliente.getRole(), "ROLE_USER");
-        });
+    private void abrirDialogoDeErro(String erro){
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Erro");
+
+        VerticalLayout verticalLayout = new VerticalLayout();
+
+        verticalLayout.add(erro);
+
+        verticalLayout.add(new Button("Ok", event -> {
+            dialog.close();
+        }));
+
+        dialog.add(verticalLayout);
+        dialog.open();
     }
 }

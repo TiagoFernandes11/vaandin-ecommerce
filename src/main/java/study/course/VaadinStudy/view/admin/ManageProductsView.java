@@ -61,10 +61,8 @@ public class ManageProductsView extends VerticalLayout {
 
     private void abrirFormProduto(Produto produto){
         Dialog dialog = new Dialog();
-        Produto novoProduto = new Produto();
-        if(Objects.isNull(produto)){
+        if(Objects.isNull(produto.getSku())){
             dialog.setHeaderTitle("Novo produto");
-            novoProduto = produto;
         } else{
             dialog.setHeaderTitle("Editar produto");
         }

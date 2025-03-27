@@ -13,8 +13,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import study.course.VaadinStudy.constants.Role;
-import study.course.VaadinStudy.entities.Cliente;
-import study.course.VaadinStudy.services.ClienteService;
+import study.course.VaadinStudy.entities.Usuario;
+import study.course.VaadinStudy.services.UsuarioService;
 import study.course.VaadinStudy.view.components.AdminLayout;
 
 import java.util.Objects;
@@ -24,21 +24,21 @@ import java.util.Objects;
 @Route(value = "/admin/administrators", layout = AdminLayout.class)
 public class ManageAdministradorView extends VerticalLayout {
 
-    private ClienteService clienteService;
-    private Grid<Cliente> listaAdministradores;
+    private UsuarioService usuarioService;
+    private Grid<Usuario> listaAdministradores;
 
-    public ManageAdministradorView(ClienteService clienteService){
-        this.clienteService = clienteService;
+    public ManageAdministradorView(UsuarioService usuarioService){
+        this.usuarioService = usuarioService;
         var titulo = new H3("Lista de administradores");
         var adicionarProdutoButton = new Button("Criar novo administrador", event -> {
-            abrirFormAdmin(new Cliente());
+            abrirFormAdmin(new Usuario());
         });
 
-        listaAdministradores = new Grid<>(Cliente.class, false);
+        listaAdministradores = new Grid<>(Usuario.class, false);
 
-        listaAdministradores.addColumn(Cliente::getId).setHeader("ID");
-        listaAdministradores.addColumn(Cliente::getEmail).setHeader("Email");
-        listaAdministradores.addColumn(Cliente::getNomeCompleto).setHeader("Nome");
+        listaAdministradores.addColumn(Usuario::getId).setHeader("ID");
+        listaAdministradores.addColumn(Usuario::getEmail).setHeader("Email");
+        listaAdministradores.addColumn(Usuario::getNomeCompleto).setHeader("Nome");
         listaAdministradores.addComponentColumn(cliente -> {
             Button editarProduto = new Button("Editar", event -> {
                 abrirFormAdmin(cliente);
@@ -53,9 +53,9 @@ public class ManageAdministradorView extends VerticalLayout {
         add(titulo, adicionarProdutoButton, listaAdministradores);
     }
 
-    public void abrirFormAdmin(Cliente cliente){
+    public void abrirFormAdmin(Usuario usuario){
         Dialog dialog = new Dialog();
-        if(Objects.isNull(cliente.getId())){
+        if(Objects.isNull(usuario.getId())){
             dialog.setHeaderTitle("Novo administrador");
         } else{
             dialog.setHeaderTitle("Edição administrador");
@@ -68,8 +68,8 @@ public class ManageAdministradorView extends VerticalLayout {
         var inputEmail = new TextField("Email: ");
         var inputSenha = new PasswordField("Senha: ");
         var inputConfirmaSenha = new PasswordField("Confirmação senha: ");
-        inputNome.setValue(cliente.getNomeCompleto() != null ? cliente.getNomeCompleto() : "");
-        inputEmail.setValue(cliente.getEmail() != null ? cliente.getEmail() : "");
+        inputNome.setValue(usuario.getNomeCompleto() != null ? usuario.getNomeCompleto() : "");
+        inputEmail.setValue(usuario.getEmail() != null ? usuario.getEmail() : "");
 
         if(!inputNome.getValue().isBlank() && !inputEmail.getValue().isBlank()){
             verticalLayout.add(inputNome, inputEmail, horizontalLayout);
@@ -78,16 +78,16 @@ public class ManageAdministradorView extends VerticalLayout {
         }
 
         horizontalLayout.add(new Button("Salvar", event -> {
-            cliente.setNomeCompleto(inputNome.getValue());
-            cliente.setEmail(inputEmail.getValue());
-            cliente.setRole(Role.ADMIN);
+            usuario.setNomeCompleto(inputNome.getValue());
+            usuario.setEmail(inputEmail.getValue());
+            usuario.setRole(Role.ADMIN);
 
-            if(Objects.isNull(cliente.getId())){
+            if(Objects.isNull(usuario.getId())){
                 if(inputSenha.getValue().equals(inputConfirmaSenha.getValue())){
-                    cliente.setSenha(inputSenha.getValue());
-                    if(validarInputComSenha(cliente)){
-                        if(clienteService.create(cliente)){
-                            Notification.show("administrador " + cliente.getEmail() + " criado");
+                    usuario.setSenha(inputSenha.getValue());
+                    if(validarInputComSenha(usuario)){
+                        if(usuarioService.create(usuario)){
+                            Notification.show("administrador " + usuario.getEmail() + " criado");
                             atualizarLista();
                             dialog.close();
                         } else {
@@ -100,9 +100,9 @@ public class ManageAdministradorView extends VerticalLayout {
                     abrirDialogoDeErro("As senhas não são iguais");
                 }
             } else{
-                if(validarInput(cliente)){
-                    if(clienteService.update(cliente)){
-                        Notification.show("Administrador id: " + cliente.getId() + " atualizado");
+                if(validarInput(usuario)){
+                    if(usuarioService.update(usuario)){
+                        Notification.show("Administrador id: " + usuario.getId() + " atualizado");
                         atualizarLista();
                         dialog.close();
                     } else {
@@ -121,7 +121,7 @@ public class ManageAdministradorView extends VerticalLayout {
         dialog.open();
     }
 
-    private void abrirDialogoConfirmacaoExclusao(Cliente cliente){
+    private void abrirDialogoConfirmacaoExclusao(Usuario usuario){
         Dialog dialog = new Dialog();
 
         dialog.setHeaderTitle("Confirmar exclusão");
@@ -131,8 +131,8 @@ public class ManageAdministradorView extends VerticalLayout {
         var horizontalLayout = new HorizontalLayout();
 
         var botaoConfirmar = new Button("Confirmar", event -> {
-            clienteService.delete(cliente);
-            Notification.show("Produto: " + cliente.getEmail() + " removido");
+            usuarioService.delete(usuario);
+            Notification.show("Produto: " + usuario.getEmail() + " removido");
             dialog.close();
             atualizarLista();
         });
@@ -152,25 +152,17 @@ public class ManageAdministradorView extends VerticalLayout {
     }
 
     private void atualizarLista(){
-        this.listaAdministradores.setItems(clienteService.findAll()).addFilter(cliente -> {
+        this.listaAdministradores.setItems(usuarioService.findAll()).addFilter(cliente -> {
             return cliente.getRole().equals("ROLE_ADMIN");
         });
     }
 
-    private boolean validarInputComSenha(Cliente cliente){
-        if((!cliente.getEmail().isBlank() || !cliente.getNomeCompleto().isBlank()) && cliente.getEmail().contains("@") && !cliente.getSenha().isBlank()){
-            return true;
-        } else {
-            return false;
-        }
+    private boolean validarInputComSenha(Usuario usuario){
+        return (!usuario.getEmail().isBlank() || !usuario.getNomeCompleto().isBlank()) && usuario.getEmail().contains("@") && !usuario.getSenha().isBlank();
     }
 
-    private boolean validarInput(Cliente cliente){
-        if((!cliente.getEmail().isBlank() || !cliente.getNomeCompleto().isBlank()) && cliente.getEmail().contains("@")){
-            return true;
-        } else {
-            return false;
-        }
+    private boolean validarInput(Usuario usuario){
+        return (!usuario.getEmail().isBlank() || !usuario.getNomeCompleto().isBlank()) && usuario.getEmail().contains("@");
     }
 
     private void abrirDialogoDeErro(String erro){

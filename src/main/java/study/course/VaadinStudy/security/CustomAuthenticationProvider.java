@@ -9,8 +9,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import study.course.VaadinStudy.entities.Cliente;
-import study.course.VaadinStudy.services.ClienteService;
+import study.course.VaadinStudy.entities.Usuario;
+import study.course.VaadinStudy.services.UsuarioService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,18 +23,18 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private ClienteService clienteService;
+    private UsuarioService usuarioService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String email = authentication.getName();
         String senha = authentication.getCredentials().toString();
-        Cliente clienteDB = clienteService.find(email);
-        if(Objects.isNull(clienteDB)){
+        Usuario usuarioDB = usuarioService.find(email);
+        if(Objects.isNull(usuarioDB)){
             throw new BadCredentialsException("Não existe um usuario com esse email");
         }
-        if(passwordEncoder.matches(senha, clienteDB.getSenha())){
-            return new UsernamePasswordAuthenticationToken(email, senha, getAuthorities(clienteDB));
+        if(passwordEncoder.matches(senha, usuarioDB.getSenha())){
+            return new UsernamePasswordAuthenticationToken(email, senha, getAuthorities(usuarioDB));
         }
         throw new BadCredentialsException("A senha está incorreta");
     }
@@ -44,9 +44,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-    public List<SimpleGrantedAuthority> getAuthorities(Cliente cliente){
+    public List<SimpleGrantedAuthority> getAuthorities(Usuario usuario){
         List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
-        grantedAuthorities.add(new SimpleGrantedAuthority(cliente.getRole()));
+        grantedAuthorities.add(new SimpleGrantedAuthority(usuario.getRole()));
         return grantedAuthorities;
     }
 }

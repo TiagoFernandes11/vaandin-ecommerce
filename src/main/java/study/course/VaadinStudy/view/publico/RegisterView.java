@@ -5,7 +5,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import study.course.VaadinStudy.services.ClienteService;
+import study.course.VaadinStudy.services.UsuarioService;
 import study.course.VaadinStudy.view.components.MainLayout;
 import study.course.VaadinStudy.view.components.RegisterForm;
 
@@ -15,8 +15,8 @@ import study.course.VaadinStudy.view.components.RegisterForm;
 @AnonymousAllowed
 public class RegisterView extends VerticalLayout {
 
-    public RegisterView(ClienteService clienteService){
-        var form = new RegisterForm(clienteService);
+    public RegisterView(UsuarioService usuarioService){
+        var form = new RegisterForm(usuarioService);
 
         setSizeFull();
         addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.CENTER);

@@ -14,8 +14,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import study.course.VaadinStudy.constants.Role;
-import study.course.VaadinStudy.entities.Cliente;
-import study.course.VaadinStudy.services.ClienteService;
+import study.course.VaadinStudy.entities.Usuario;
+import study.course.VaadinStudy.services.UsuarioService;
 import study.course.VaadinStudy.view.components.AdminLayout;
 
 import java.util.Objects;
@@ -25,20 +25,20 @@ import java.util.Objects;
 @Route(value = "/admin/users", layout = AdminLayout.class)
 public class ManageUsersView extends VerticalLayout {
 
-    private final ClienteService clienteService;
-    private Grid<Cliente> listaUsuarios;
+    private final UsuarioService usuarioService;
+    private Grid<Usuario> listaUsuarios;
 
-    public ManageUsersView(ClienteService clienteService){
-        this.clienteService = clienteService;
+    public ManageUsersView(UsuarioService usuarioService){
+        this.usuarioService = usuarioService;
         var gridTitle = new H3("Lista de usuários ");
         var criarUsuarioButton = new Button("Criar novo usuario", event -> {
-            abrirFormUsuario(new Cliente());
+            abrirFormUsuario(new Usuario());
         });
-        listaUsuarios = new Grid<>(Cliente.class, false);
+        listaUsuarios = new Grid<>(Usuario.class, false);
 
-        listaUsuarios.addColumn(Cliente::getId).setHeader("Id").setSortable(true);
-        listaUsuarios.addColumn(Cliente::getNomeCompleto).setHeader("Nome").setSortable(true);
-        listaUsuarios.addColumn(Cliente::getEmail).setHeader("Email").setSortable(true);
+        listaUsuarios.addColumn(Usuario::getId).setHeader("Id").setSortable(true);
+        listaUsuarios.addColumn(Usuario::getNomeCompleto).setHeader("Nome").setSortable(true);
+        listaUsuarios.addColumn(Usuario::getEmail).setHeader("Email").setSortable(true);
         listaUsuarios.addComponentColumn(usuario -> {
             Button editarButton = new Button("Editar", event -> {
                 abrirFormUsuario(usuario);
@@ -57,9 +57,9 @@ public class ManageUsersView extends VerticalLayout {
         add(gridTitle, criarUsuarioButton, listaUsuarios);
     }
 
-    private void abrirFormUsuario(Cliente cliente){
+    private void abrirFormUsuario(Usuario usuario){
         Dialog dialog = new Dialog();
-        if(Objects.isNull(cliente.getId())){
+        if(Objects.isNull(usuario.getId())){
             dialog.setHeaderTitle("Novo usuário");
         } else{
             dialog.setHeaderTitle("Edição usuário");
@@ -72,8 +72,8 @@ public class ManageUsersView extends VerticalLayout {
         var inputEmail = new TextField("Email: ");
         var inputSenha = new PasswordField("Senha: ");
         var inputConfirmaSenha = new PasswordField("Confirmação senha: ");
-        inputNome.setValue(cliente.getNomeCompleto() != null ? cliente.getNomeCompleto() : "");
-        inputEmail.setValue(cliente.getEmail() != null ? cliente.getEmail() : "");
+        inputNome.setValue(usuario.getNomeCompleto() != null ? usuario.getNomeCompleto() : "");
+        inputEmail.setValue(usuario.getEmail() != null ? usuario.getEmail() : "");
 
         if(!inputNome.getValue().isBlank() && !inputEmail.getValue().isBlank()){
             verticalLayout.add(inputNome, inputEmail, horizontalLayout);
@@ -82,16 +82,16 @@ public class ManageUsersView extends VerticalLayout {
         }
 
         horizontalLayout.add(new Button("Salvar", event -> {
-            cliente.setNomeCompleto(inputNome.getValue());
-            cliente.setEmail(inputEmail.getValue());
-            cliente.setRole(Role.ADMIN);
+            usuario.setNomeCompleto(inputNome.getValue());
+            usuario.setEmail(inputEmail.getValue());
+            usuario.setRole(Role.ADMIN);
 
-            if(Objects.isNull(cliente.getId())){
+            if(Objects.isNull(usuario.getId())){
                 if(inputSenha.getValue().equals(inputConfirmaSenha.getValue())){
-                    cliente.setSenha(inputSenha.getValue());
-                    if(validarInputComSenha(cliente)){
-                        if(clienteService.create(cliente)){
-                            Notification.show("Usuario " + cliente.getEmail() + " criado");
+                    usuario.setSenha(inputSenha.getValue());
+                    if(validarInputComSenha(usuario)){
+                        if(usuarioService.create(usuario)){
+                            Notification.show("Usuario " + usuario.getEmail() + " criado");
                             atualizarLista();
                             dialog.close();
                         } else {
@@ -104,9 +104,9 @@ public class ManageUsersView extends VerticalLayout {
                     abrirDialogoDeErro("As senhas não são iguais");
                 }
             } else{
-                if(validarInput(cliente)){
-                    if(clienteService.update(cliente)){
-                        Notification.show("Usuario id: " + cliente.getId() + " atualizado");
+                if(validarInput(usuario)){
+                    if(usuarioService.update(usuario)){
+                        Notification.show("Usuario id: " + usuario.getId() + " atualizado");
                         atualizarLista();
                         dialog.close();
                     } else {
@@ -141,7 +141,7 @@ public class ManageUsersView extends VerticalLayout {
         dialog.open();
     }
 
-    private void abrirDialogoConfirmacaoExclusao(Cliente cliente){
+    private void abrirDialogoConfirmacaoExclusao(Usuario usuario){
         Dialog dialog = new Dialog();
 
         dialog.setHeaderTitle("Confirmar exclusão");
@@ -151,8 +151,8 @@ public class ManageUsersView extends VerticalLayout {
         var horizontalLayout = new HorizontalLayout();
 
         var botaoConfirmar = new Button("Confirmar", event -> {
-            clienteService.delete(cliente);
-            Notification.show("Usuário " + cliente.getEmail() + " removido");
+            usuarioService.delete(usuario);
+            Notification.show("Usuário " + usuario.getEmail() + " removido");
             dialog.close();
             atualizarLista();
         });
@@ -171,24 +171,16 @@ public class ManageUsersView extends VerticalLayout {
         dialog.open();
     }
 
-    private boolean validarInputComSenha(Cliente cliente){
-        if((!cliente.getEmail().isBlank() || !cliente.getNomeCompleto().isBlank()) && cliente.getEmail().contains("@") && !cliente.getSenha().isBlank()){
-            return true;
-        } else {
-            return false;
-        }
+    private boolean validarInputComSenha(Usuario usuario){
+        return (!usuario.getEmail().isBlank() || !usuario.getNomeCompleto().isBlank()) && usuario.getEmail().contains("@") && !usuario.getSenha().isBlank();
     }
 
-    private boolean validarInput(Cliente cliente){
-        if((!cliente.getEmail().isBlank() || !cliente.getNomeCompleto().isBlank()) && cliente.getEmail().contains("@")){
-            return true;
-        } else {
-            return false;
-        }
+    private boolean validarInput(Usuario usuario){
+        return (!usuario.getEmail().isBlank() || !usuario.getNomeCompleto().isBlank()) && usuario.getEmail().contains("@");
     }
 
     private void atualizarLista(){
-        listaUsuarios.setItems(clienteService.findAll()).addFilter(cliente -> {
+        listaUsuarios.setItems(usuarioService.findAll()).addFilter(cliente -> {
             return Objects.equals(cliente.getRole(), "ROLE_USER");
         });
     }

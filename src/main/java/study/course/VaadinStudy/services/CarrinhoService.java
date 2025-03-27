@@ -3,15 +3,14 @@ package study.course.VaadinStudy.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.entities.Carrinho;
-import study.course.VaadinStudy.entities.Cliente;
+import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.entities.Produto;
 import study.course.VaadinStudy.entities.ItemCarrinho;
 import study.course.VaadinStudy.repository.CarrinhoRepository;
-import study.course.VaadinStudy.repository.ClienteRepository;
+import study.course.VaadinStudy.repository.UsuarioRepository;
 import study.course.VaadinStudy.repository.ItemCarrinhoRepository;
 import study.course.VaadinStudy.repository.ProdutoRepository;
 
-import javax.management.BadAttributeValueExpException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,12 +29,12 @@ public class CarrinhoService {
     private ProdutoRepository produtoRepository;
 
     @Autowired
-    ClienteRepository clienteRepository;
+    UsuarioRepository usuarioRepository;
 
     public boolean exists (String email){
-        Cliente cliente = clienteRepository.findByEmail(email).orElse(null);
-        if(!Objects.isNull(cliente)){
-            return exists(cliente.getId());
+        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+        if(!Objects.isNull(usuario)){
+            return exists(usuario.getId());
         }
         return false;
     }
@@ -56,16 +55,16 @@ public class CarrinhoService {
     }
 
     public void adicionarProduto(String email, Long idProduto){
-        Cliente cliente = clienteRepository.findByEmail(email).orElse(null);
-        if(!Objects.isNull(cliente)){
-            adicionarProduto(cliente.getId(), idProduto);
+        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+        if(!Objects.isNull(usuario)){
+            adicionarProduto(usuario.getId(), idProduto);
         }
     }
 
     public void removerProduto(String email, Long idProduto){
-        Cliente cliente = clienteRepository.findByEmail(email).orElse(null);
-        if(!Objects.isNull(cliente)){
-            removerProduto(cliente.getId(), idProduto);
+        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+        if(!Objects.isNull(usuario)){
+            removerProduto(usuario.getId(), idProduto);
         }
     }
 

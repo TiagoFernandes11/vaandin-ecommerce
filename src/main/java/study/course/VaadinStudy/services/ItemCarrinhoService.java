@@ -3,7 +3,7 @@ package study.course.VaadinStudy.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.entities.Carrinho;
-import study.course.VaadinStudy.entities.Cliente;
+import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.entities.ItemCarrinho;
 
 import java.util.List;
@@ -15,11 +15,11 @@ public class ItemCarrinhoService {
     private CarrinhoService carrinhoService;
 
     @Autowired
-    private ClienteService clienteService;
+    private UsuarioService usuarioService;
 
     public List<ItemCarrinho> findAllItems(String clienteEmail){
-        Cliente cliente = clienteService.find(clienteEmail);
-        Carrinho carrinho = carrinhoService.find(cliente.getId());
+        Usuario usuario = usuarioService.find(clienteEmail);
+        Carrinho carrinho = carrinhoService.find(usuario.getId());
         return carrinho.getItens();
     }
 }

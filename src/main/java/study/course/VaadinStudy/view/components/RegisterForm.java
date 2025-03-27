@@ -11,8 +11,8 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import org.springframework.stereotype.Component;
 import study.course.VaadinStudy.constants.Role;
-import study.course.VaadinStudy.entities.Cliente;
-import study.course.VaadinStudy.services.ClienteService;
+import study.course.VaadinStudy.entities.Usuario;
+import study.course.VaadinStudy.services.UsuarioService;
 import study.course.VaadinStudy.view.publico.LoginView;
 
 import java.util.ArrayList;
@@ -21,11 +21,11 @@ import java.util.List;
 @Component
 public class RegisterForm extends Composite<Div> implements HasElement {
 
-    protected final ClienteService clienteService;
+    protected final UsuarioService usuarioService;
 
-    public RegisterForm(ClienteService clienteService){
+    public RegisterForm(UsuarioService usuarioService){
         //Injeção de dependencia
-        this.clienteService = clienteService;
+        this.usuarioService = usuarioService;
 
         //declaração dos elementos
         var form = new VerticalLayout();
@@ -74,8 +74,8 @@ public class RegisterForm extends Composite<Div> implements HasElement {
     }
 
     public void registrar(String nome, String email, String senha){
-        Cliente cliente = new Cliente(null, nome, email, senha, Role.USER);
-        boolean foiCadastrado = clienteService.create(cliente);
+        Usuario usuario = new Usuario(null, nome, email, senha, Role.USER);
+        boolean foiCadastrado = usuarioService.create(usuario);
         if(foiCadastrado){
             UI.getCurrent().navigate(LoginView.class);
             Notification.show("Registrado com sucesso");

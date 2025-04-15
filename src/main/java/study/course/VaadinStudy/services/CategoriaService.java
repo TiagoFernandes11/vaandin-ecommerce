@@ -30,6 +30,10 @@ public class CategoriaService {
         return categoriaRepository.findByNome(nome).orElse(null);
     }
 
+    public Categoria find(Long id){
+        return categoriaRepository.findById(id).orElse(null);
+    }
+
     public boolean create(Categoria categoria){
         Optional<Categoria> categoriaFromDb = categoriaRepository.findByNome(categoria.getNome());
         if(categoriaFromDb.isEmpty()){
@@ -52,6 +56,7 @@ public class CategoriaService {
             return false;
         } else {
             categoria.getProdutos().add(produto);
+            categoriaRepository.save(categoria);
             return true;
         }
     }

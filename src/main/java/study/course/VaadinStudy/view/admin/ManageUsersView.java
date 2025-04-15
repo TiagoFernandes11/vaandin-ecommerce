@@ -180,8 +180,6 @@ public class ManageUsersView extends VerticalLayout {
     }
 
     private void atualizarLista(){
-        listaUsuarios.setItems(usuarioService.findAll()).addFilter(cliente -> {
-            return Objects.equals(cliente.getRole(), "ROLE_USER");
-        });
+        listaUsuarios.setItems(usuarioService.findAll()).addFilter(cliente -> Objects.equals(cliente.getRole(), "ROLE_USER"));
     }
 }

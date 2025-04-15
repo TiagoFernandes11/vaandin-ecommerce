@@ -1,5 +1,6 @@
 package study.course.VaadinStudy.view.admin;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -11,12 +12,10 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import study.course.VaadinStudy.entities.Categoria;
-import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.services.CategoriaService;
 import study.course.VaadinStudy.view.components.AdminLayout;
 import com.vaadin.flow.component.html.H2;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,13 +23,13 @@ import java.util.Objects;
 @RolesAllowed("ROLE_ADMIN")
 @Route(value = "/admin/categories", layout = AdminLayout.class)
 @PageTitle("Manage categorias")
-public class ManageCategoriaView extends VerticalLayout {
+public class ManageCategoriesView extends VerticalLayout {
 
     private final CategoriaService categoriaService;
 
     private Grid<Categoria> categoriaGrid;
 
-    public ManageCategoriaView(CategoriaService categoriaService){
+    public ManageCategoriesView(CategoriaService categoriaService){
         this.categoriaService = categoriaService;
         List<Categoria> categorias = categoriaService.findAll();
         categoriaGrid = new Grid<>(Categoria.class, false);
@@ -45,13 +44,13 @@ public class ManageCategoriaView extends VerticalLayout {
         categoriaGrid.addColumn(Categoria::getNome).setHeader("Nome");
         categoriaGrid.addComponentColumn(categoria -> {
             var botaoEditar = new Button("Editar Produtos", event -> {
-
+                UI.getCurrent().navigate(ManageCategoryView.class, categoria.getId());
             });
             var botaoEditarNome = new Button("Editar nome", event -> {
-
+                abrirFormCategoria(categoria);
             });
             var botaoExcluir = new Button("Excluir", event -> {
-
+                abrirDialogoConfirmacaoExclusao(categoria);
             });
             return new HorizontalLayout(botaoEditar, botaoEditarNome, botaoExcluir);
         }).setHeader("Ações");

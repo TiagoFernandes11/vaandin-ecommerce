@@ -11,10 +11,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import study.course.VaadinStudy.entities.ItemCarrinho;
+import study.course.VaadinStudy.entities.ItemPedido;
 import study.course.VaadinStudy.entities.Produto;
-import study.course.VaadinStudy.services.CarrinhoService;
-import study.course.VaadinStudy.services.ItemCarrinhoService;
+import study.course.VaadinStudy.services.PedidoService;
+import study.course.VaadinStudy.services.ItemPedidoService;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -22,14 +22,14 @@ import java.util.List;
 public class Carrinho extends VerticalLayout {
 
     private AuthenticationContext authenticationContext;
-    private ItemCarrinhoService itemCarrinhoService;
-    private CarrinhoService carrinhoService;
+    private ItemPedidoService itemPedidoService;
+    private PedidoService pedidoService;
     private VerticalLayout itensContainer;
 
-    public Carrinho(AuthenticationContext authenticationContext, ItemCarrinhoService itemCarrinhoService, CarrinhoService carrinhoService){
+    public Carrinho(AuthenticationContext authenticationContext, ItemPedidoService itemPedidoService, PedidoService pedidoService){
         this.authenticationContext= authenticationContext;
-        this.itemCarrinhoService = itemCarrinhoService;
-        this.carrinhoService = carrinhoService;
+        this.itemPedidoService = itemPedidoService;
+        this.pedidoService = pedidoService;
         renderizarCarrinho();
     }
 
@@ -41,10 +41,10 @@ public class Carrinho extends VerticalLayout {
 
         String emailCliente = authenticationContext.getPrincipalName().orElse(null);
 
-        if(carrinhoService.exists(emailCliente)){
-            List<ItemCarrinho> itens = itemCarrinhoService.findAllItems(emailCliente);
+        if(pedidoService.exists(emailCliente)){
+            List<ItemPedido> itens = itemPedidoService.findAllItems(emailCliente);
 
-            for(ItemCarrinho item : itens){
+            for(ItemPedido item : itens){
                 HorizontalLayout imagemInfoContainer = new HorizontalLayout();
                 VerticalLayout nomeQuantidadeContainer = new VerticalLayout();
                 Produto produto = item.getProduto();
@@ -63,11 +63,11 @@ public class Carrinho extends VerticalLayout {
                 imagemInfoContainer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.CENTER);
 
                 Button adicionarBotao = new Button("Adicionar", event -> {
-                    carrinhoService.adicionarProduto(emailCliente, item.getProduto().getId());
+                    pedidoService.adicionarProduto(emailCliente, item.getProduto().getId());
                     renderizarCarrinho();
                 });
                 Button removerBotao = new Button("Remover", event -> {
-                    carrinhoService.removerProduto(emailCliente, item.getProduto().getId());
+                    pedidoService.removerProduto(emailCliente, item.getProduto().getId());
                     renderizarCarrinho();
                 });
 

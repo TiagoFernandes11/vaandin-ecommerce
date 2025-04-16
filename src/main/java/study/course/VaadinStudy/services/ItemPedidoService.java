@@ -2,24 +2,24 @@ package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import study.course.VaadinStudy.entities.Carrinho;
+import study.course.VaadinStudy.entities.Pedido;
 import study.course.VaadinStudy.entities.Usuario;
-import study.course.VaadinStudy.entities.ItemCarrinho;
+import study.course.VaadinStudy.entities.ItemPedido;
 
 import java.util.List;
 
 @Service
-public class ItemCarrinhoService {
+public class ItemPedidoService {
 
     @Autowired
-    private CarrinhoService carrinhoService;
+    private PedidoService pedidoService;
 
     @Autowired
     private UsuarioService usuarioService;
 
-    public List<ItemCarrinho> findAllItems(String clienteEmail){
+    public List<ItemPedido> findAllItems(String clienteEmail){
         Usuario usuario = usuarioService.find(clienteEmail);
-        Carrinho carrinho = carrinhoService.find(usuario.getId());
-        return carrinho.getItens();
+        Pedido pedido = pedidoService.find(usuario.getId());
+        return pedido.getItens();
     }
 }

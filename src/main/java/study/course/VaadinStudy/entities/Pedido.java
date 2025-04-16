@@ -5,21 +5,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemCarrinho {
+public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "idproduto")
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Produto produto;
+    private Long idCliente;
 
-    private int quantidade;
+    private String status;
 
-    private Double subTotal;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<ItemPedido> itens;
+
+    private Double total;
 }

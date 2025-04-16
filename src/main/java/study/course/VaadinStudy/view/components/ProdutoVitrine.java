@@ -12,7 +12,7 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.entities.Produto;
-import study.course.VaadinStudy.services.CarrinhoService;
+import study.course.VaadinStudy.services.PedidoService;
 import study.course.VaadinStudy.services.UsuarioService;
 import study.course.VaadinStudy.view.publico.LoginView;
 
@@ -24,12 +24,12 @@ public class ProdutoVitrine extends VerticalLayout {
     private final transient AuthenticationContext authenticationContext;
 
     @Autowired
-    private CarrinhoService carrinhoService;
+    private PedidoService pedidoService;
 
     @Autowired
     private UsuarioService usuarioService;
 
-    public ProdutoVitrine(Produto produto, AuthenticationContext authenticationContext, UsuarioService usuarioService, CarrinhoService carrinhoService){
+    public ProdutoVitrine(Produto produto, AuthenticationContext authenticationContext, UsuarioService usuarioService, PedidoService pedidoService){
         this.authenticationContext = authenticationContext;
         StreamResource resource = new StreamResource(produto.getNome(), () -> new ByteArrayInputStream(produto.getImagem()));
         Image imagem = new Image();
@@ -46,7 +46,7 @@ public class ProdutoVitrine extends VerticalLayout {
         Button adicionarCarrinhoButton = new Button("Comprar", event -> {
             Usuario usuario = usuarioService.find(this.authenticationContext.getPrincipalName().orElse(null));
             if(!Objects.isNull(usuario)){
-                carrinhoService.adicionarProduto(usuario.getId(), produto.getId());
+                pedidoService.adicionarProduto(usuario.getId(), produto.getId());
             } else {
                 UI.getCurrent().navigate(LoginView.class);
             }

@@ -5,8 +5,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import jakarta.annotation.security.RolesAllowed;
-import study.course.VaadinStudy.services.CarrinhoService;
-import study.course.VaadinStudy.services.ItemCarrinhoService;
+import study.course.VaadinStudy.services.PedidoService;
+import study.course.VaadinStudy.services.ItemPedidoService;
 import study.course.VaadinStudy.view.components.Carrinho;
 import study.course.VaadinStudy.view.components.MainLayout;
 
@@ -15,8 +15,8 @@ import study.course.VaadinStudy.view.components.MainLayout;
 @Route(value = "/carrinho", layout = MainLayout.class)
 public class CarrinhoView extends VerticalLayout {
 
-    public CarrinhoView(AuthenticationContext authenticationContext, ItemCarrinhoService itemCarrinhoService, CarrinhoService carrinhoService){
-        Carrinho carrinho = new Carrinho(authenticationContext, itemCarrinhoService, carrinhoService);
+    public CarrinhoView(AuthenticationContext authenticationContext, ItemPedidoService itemPedidoService, PedidoService pedidoService){
+        Carrinho carrinho = new Carrinho(authenticationContext, itemPedidoService, pedidoService);
         add(carrinho);
     }
 }

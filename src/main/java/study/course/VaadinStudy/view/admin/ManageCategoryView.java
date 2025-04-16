@@ -55,7 +55,7 @@ public class ManageCategoryView extends VerticalLayout implements HasUrlParamete
             addProdutosDialog.open();
         });
 
-        produtosCategoriaLayout = getListaDeProdutos();
+        produtosCategoriaLayout = criatListaProdutosFlexLayout();
 
         add(titulo, adicionarProdutoButton, produtosCategoriaLayout);
     }
@@ -78,7 +78,9 @@ public class ManageCategoryView extends VerticalLayout implements HasUrlParamete
         }).setHeader("Imagem");
         produtosParaAdicionarGrid.addColumn(Produto::getNome).setHeader("Nome");
         produtosParaAdicionarGrid.addComponentColumn(produto -> new Button("Adicionar", buttonClickEvent -> {
-            categoriaService.adicionarProduto(categoria.getNome(), produto.getId());
+            categoriaService.adicionarProduto(this.categoria.getNome(), produto.getId());
+            atualizarProdutosParaAdicionar();
+            atualizarProdutosCategoriaLayout();
         })).setHeader("Ação");
 
         atualizarProdutosParaAdicionar();
@@ -92,11 +94,32 @@ public class ManageCategoryView extends VerticalLayout implements HasUrlParamete
         return addProdutosDialog;
     }
 
+    private void atualizarProdutosCategoriaLayout() {
+        produtosCategoriaLayout.removeAll();
+        this.categoria = categoriaService.find(idCategoria);
+
+        List<Produto> produtosAdicionados = produtoService.findAll().stream()
+                .filter(produto -> categoria.getProdutos().contains(produto))
+                .toList();
+
+        for (Produto produto : produtosAdicionados) {
+            VerticalLayout imagemENome = getImagemENome(produto);
+            Button buttonRemover = new Button("Remover da categoria", event -> {
+                categoriaService.removerProduto(categoria.getNome(), produto.getId());
+                atualizarProdutosParaAdicionar();
+                atualizarProdutosCategoriaLayout();
+            });
+            imagemENome.add(buttonRemover);
+            produtosCategoriaLayout.add(imagemENome);
+        }
+    }
+
     private void atualizarProdutosParaAdicionar() {
+        this.categoria = categoriaService.find(idCategoria);
         produtosParaAdicionarGrid.setItems(produtoService.findAll().stream().filter(produto -> !categoria.getProdutos().contains(produto)).toList());
     }
 
-    private FlexLayout getListaDeProdutos(){
+    private FlexLayout criatListaProdutosFlexLayout(){
         List<Produto> produtosAdicionados = produtoService.findAll().stream().filter(produto -> categoria.getProdutos().contains(produto)).toList();
 
         FlexLayout listaDeProdutos = new FlexLayout();
@@ -107,6 +130,11 @@ public class ManageCategoryView extends VerticalLayout implements HasUrlParamete
 
         for(Produto produto : produtosAdicionados){
             VerticalLayout imagemENome = getImagemENome(produto);
+            Button buttonRemover = new Button("Remover da categoria", event -> {
+                categoriaService.removerProduto(categoria.getNome(), produto.getId());
+                atualizarProdutosCategoriaLayout();
+            });
+            imagemENome.add(buttonRemover);
             listaDeProdutos.add(imagemENome);
         }
 

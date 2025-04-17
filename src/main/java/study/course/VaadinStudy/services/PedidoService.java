@@ -12,10 +12,7 @@ import study.course.VaadinStudy.repository.ItemPedidoRepository;
 import study.course.VaadinStudy.repository.ProdutoRepository;
 import study.course.VaadinStudy.repository.UsuarioRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PedidoService {
@@ -45,6 +42,14 @@ public class PedidoService {
         return carrinho.isPresent();
     }
 
+    public Pedido find(String emailCliente){
+        Usuario usuario = usuarioRepository.findByEmail(emailCliente).orElse(null);
+        if(!Objects.isNull(usuario)){
+            return find(usuario.getId());
+        }
+        return null;
+    }
+
     public Pedido find(Long idCliente){
         return pedidoRepository.findByIdCliente(idCliente).orElse(null);
     }
@@ -53,7 +58,7 @@ public class PedidoService {
 
     public void create(Long idCliente){
         List<ItemPedido> produtos = new ArrayList<>();
-        Pedido pedido = new Pedido(null, idCliente, StatusPedido.CARRINHO, produtos, 0.00);
+        Pedido pedido = new Pedido(null, idCliente, StatusPedido.CARRINHO, new Date(), false, null, null, produtos, 0.00);
         pedidoRepository.save(pedido);
     }
 

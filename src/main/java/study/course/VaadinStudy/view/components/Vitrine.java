@@ -12,21 +12,15 @@ import study.course.VaadinStudy.services.ProdutoService;
 import java.util.List;
 
 public class Vitrine extends FlexLayout {
-    
-    private List<Produto> produtos;
-    private final transient AuthenticationContext authenticationContext;
 
-    public Vitrine(AuthenticationContext authenticationContext, ProdutoService produtoService, UsuarioService usuarioService, PedidoService pedidoService) {
-        this.authenticationContext = authenticationContext;
-        this.produtos = produtoService.findAll();
-
+    public Vitrine(AuthenticationContext authenticationContext, List<Produto> produtos, UsuarioService usuarioService, PedidoService pedidoService) {
         setFlexDirection(FlexLayout.FlexDirection.ROW);
         setFlexWrap(FlexLayout.FlexWrap.WRAP);
         setAlignItems(FlexComponent.Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
 
-        for (Produto produto : this.produtos) {
-            ProdutoVitrine produtoVitrine = new ProdutoVitrine(produto, this.authenticationContext, usuarioService, pedidoService);
+        for (Produto produto : produtos) {
+            ProdutoVitrine produtoVitrine = new ProdutoVitrine(produto, authenticationContext, usuarioService, pedidoService);
             produtoVitrine.setWidth("220px");
             produtoVitrine.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.Margin.LARGE);
             add(produtoVitrine);

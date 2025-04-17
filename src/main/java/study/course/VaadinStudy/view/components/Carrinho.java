@@ -1,10 +1,7 @@
 package study.course.VaadinStudy.view.components;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -12,37 +9,38 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import study.course.VaadinStudy.entities.ItemPedido;
+import study.course.VaadinStudy.entities.Pedido;
 import study.course.VaadinStudy.entities.Produto;
+import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.services.PedidoService;
 import study.course.VaadinStudy.services.ItemPedidoService;
+import study.course.VaadinStudy.services.UsuarioService;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
 public class Carrinho extends VerticalLayout {
 
-    private AuthenticationContext authenticationContext;
-    private ItemPedidoService itemPedidoService;
-    private PedidoService pedidoService;
-    private VerticalLayout itensContainer;
+    private final AuthenticationContext authenticationContext;
+    private final UsuarioService usuarioService;
+    private final PedidoService pedidoService;
 
-    public Carrinho(AuthenticationContext authenticationContext, ItemPedidoService itemPedidoService, PedidoService pedidoService){
+    public Carrinho(AuthenticationContext authenticationContext, UsuarioService usuarioService, PedidoService pedidoService){
         this.authenticationContext= authenticationContext;
-        this.itemPedidoService = itemPedidoService;
+        this.usuarioService = usuarioService;
         this.pedidoService = pedidoService;
         renderizarCarrinho();
     }
 
     private void renderizarCarrinho(){
         removeAll();
+        VerticalLayout itensContainer = new VerticalLayout();
 
-        H2 titulo = new H2("Carrinho");
-        itensContainer = new VerticalLayout();
+        Usuario cliente = usuarioService.find(authenticationContext.getPrincipalName().orElse(null));
 
-        String emailCliente = authenticationContext.getPrincipalName().orElse(null);
-
-        if(pedidoService.exists(emailCliente)){
-            List<ItemPedido> itens = itemPedidoService.findAllItems(emailCliente);
+        if(pedidoService.exists(cliente.getEmail())){
+            Pedido pedido = pedidoService.find(cliente.getEmail());
+            List<ItemPedido> itens = pedido.getItens();
 
             for(ItemPedido item : itens){
                 HorizontalLayout imagemInfoContainer = new HorizontalLayout();
@@ -63,11 +61,11 @@ public class Carrinho extends VerticalLayout {
                 imagemInfoContainer.addClassNames(LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.CENTER);
 
                 Button adicionarBotao = new Button("Adicionar", event -> {
-                    pedidoService.adicionarProduto(emailCliente, item.getProduto().getId());
+                    pedidoService.adicionarProduto(cliente.getEmail(), item.getProduto().getId());
                     renderizarCarrinho();
                 });
                 Button removerBotao = new Button("Remover", event -> {
-                    pedidoService.removerProduto(emailCliente, item.getProduto().getId());
+                    pedidoService.removerProduto(cliente.getEmail(), item.getProduto().getId());
                     renderizarCarrinho();
                 });
 
@@ -75,10 +73,8 @@ public class Carrinho extends VerticalLayout {
                 imagemInfoContainer.add(imagemProduto, removerBotao, nomeQuantidadeContainer, adicionarBotao, valor);
                 itensContainer.add(imagemInfoContainer);
             }
-            Button finalizarButton = new Button("Finalizar compra", event -> {
-                Notification.show("Finalizando compra");
-            });
-            add(itensContainer, finalizarButton);
+            H4 valorTotal = new H4("Valor total: R$ %.2f".formatted(pedido.getTotal()));
+            add(itensContainer, valorTotal);
         }
         else{
             add(new H1("Você não tem produtos adicionados no carrinho"));

@@ -30,6 +30,8 @@ public class Pedido {
 
     private Date dataEntrega;
 
+    private String tipoDeEntrega;
+
     @OneToMany(fetch = FetchType.EAGER)
     private List<ItemPedido> itens;
 

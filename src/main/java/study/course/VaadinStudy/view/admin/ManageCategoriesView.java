@@ -27,11 +27,10 @@ public class ManageCategoriesView extends VerticalLayout {
 
     private final CategoriaService categoriaService;
 
-    private Grid<Categoria> categoriaGrid;
+    private final Grid<Categoria> categoriaGrid;
 
     public ManageCategoriesView(CategoriaService categoriaService){
         this.categoriaService = categoriaService;
-        List<Categoria> categorias = categoriaService.findAll();
         categoriaGrid = new Grid<>(Categoria.class, false);
 
         var titulo = new H2("Categorias");

@@ -48,7 +48,7 @@ public class Carrinho extends VerticalLayout {
                 Produto produto = item.getProduto();
                 Span nomeProduto = new Span(item.getProduto().getNome());
                 Span quantidade = new Span("Quantidade: " + item.getQuantidade());
-                Span valor = new Span("R$ " + item.getSubTotal());
+                Span valor = new Span("R$ %.2f".formatted(item.getSubTotal()));
 
                 StreamResource resource = new StreamResource(produto.getNome(), () -> new ByteArrayInputStream(produto.getImagem()));
                 Image imagemProduto = new Image();

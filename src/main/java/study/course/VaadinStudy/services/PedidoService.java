@@ -58,7 +58,7 @@ public class PedidoService {
 
     public void create(Long idCliente){
         List<ItemPedido> produtos = new ArrayList<>();
-        Pedido pedido = new Pedido(null, idCliente, StatusPedido.CARRINHO, new Date(), false, null, null, produtos, 0.00);
+        Pedido pedido = new Pedido(null, idCliente, StatusPedido.CARRINHO, new Date(), false, null, null, null, produtos, 0.00);
         pedidoRepository.save(pedido);
     }
 
@@ -100,6 +100,8 @@ public class PedidoService {
                 pedido.getItens().add(novoItemPedido);
             }
 
+            pedido.setTotal(0.0);
+
             for(ItemPedido item : pedido.getItens()){
                 pedido.setTotal(pedido.getTotal() + item.getSubTotal());
             }
@@ -131,6 +133,7 @@ public class PedidoService {
                         pedidoRepository.delete(pedido);
                     }
                     itemPedidoRepository.delete(item);
+                    calcularTotalPedido(pedido);
                     return;
                 } else{
                     int quantidade = item.getQuantidade();
@@ -139,12 +142,16 @@ public class PedidoService {
                     itemPedidoRepository.save(itemPedido);
                 }
             }
-
-            for(ItemPedido item : pedido.getItens()){
-                pedido.setTotal(pedido.getTotal() + item.getSubTotal());
-            }
-
+            calcularTotalPedido(pedido);
             pedidoRepository.save(pedido);
+        }
+    }
+
+    private void calcularTotalPedido(Pedido pedido){
+        pedido.setTotal(0.0);
+
+        for(ItemPedido item : pedido.getItens()){
+            pedido.setTotal(pedido.getTotal() + item.getSubTotal());
         }
     }
 }

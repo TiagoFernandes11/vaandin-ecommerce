@@ -2,10 +2,13 @@ package study.course.VaadinStudy.view.publico;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.listbox.ListBox;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.security.AuthenticationContext;
@@ -31,6 +34,8 @@ import java.util.Objects;
 public class CarrinhoView extends HorizontalLayout {
 
     public CarrinhoView(AuthenticationContext authenticationContext, ItemPedidoService itemPedidoService, ProdutoService produtoService, PedidoService pedidoService, UsuarioService usuarioService){
+        addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.CENTER);
+
         Button buttonVoltar = new Button("Voltar para a pagina principal", event -> {
             UI.getCurrent().navigate(MainView.class);
         });
@@ -39,6 +44,7 @@ public class CarrinhoView extends HorizontalLayout {
         VerticalLayout menuDireito = new VerticalLayout();
 
         menuEsquerdo.addClassNames(LumoUtility.Border.ALL);
+        menuDireito.addClassNames(LumoUtility.Border.ALL);
 
         Carrinho carrinho = new Carrinho(authenticationContext, usuarioService, pedidoService);
         carrinho.addClassNames(LumoUtility.Border.ALL);
@@ -70,6 +76,44 @@ public class CarrinhoView extends HorizontalLayout {
         menuEsquerdo.add(buttonVoltar, carrinho, outrosProdutosTitulo, miniVitrine);
         botaoEMenuEsquerdo.add(buttonVoltar,menuEsquerdo);
 
-        add(botaoEMenuEsquerdo, menuDireito);
+        ListBox<String> listBox = new ListBox<>();
+        listBox.setItems("Entrega padrão", "Entrega agendada", "Entrega expressa");
+        listBox.setValue("Entrega padrão");
+
+        H4 cepTitulo = new H4("Seu cep: ");
+        TextField inputCep = new TextField();
+
+        Button btnFinalizarCompra = new Button("Finalizar compra", event -> {
+            Notification.show("Não implementado");
+        });
+
+        Button btnEscolherMaisProdutos = new Button("Escolher mais produtos", event -> {
+            UI.getCurrent().navigate(MainView.class);
+        });
+
+        HorizontalLayout menuInformacoesDeEntrega = new HorizontalLayout();
+        menuInformacoesDeEntrega.addClassNames(LumoUtility.Width.FULL);
+        menuDireito.add(cepTitulo, inputCep, listBox);
+
+        VerticalLayout endereco = new VerticalLayout();
+        H4 enderecoTitulo = new H4("Seu endereço: ");
+        endereco.add(enderecoTitulo);
+
+        endereco.setClassName(LumoUtility.Border.ALL);
+
+        H5 tituloEndereco = new H5("Principal");
+        Span ruaENumero = new Span("Rua dos testes, 69");
+        Span bairroCidadeEEstado = new Span("Bairro dos testes - São Teste - ST");
+        Span cep = new Span("CEP: 696969-060");
+
+        endereco.add(tituloEndereco, ruaENumero, bairroCidadeEEstado, cep);
+
+        menuInformacoesDeEntrega.add(menuDireito, endereco);
+
+        VerticalLayout menuDireitoEBotoes = new VerticalLayout();
+
+        menuDireitoEBotoes.add(menuInformacoesDeEntrega, btnEscolherMaisProdutos, btnFinalizarCompra);
+
+        add(botaoEMenuEsquerdo, menuDireitoEBotoes);
     }
 }

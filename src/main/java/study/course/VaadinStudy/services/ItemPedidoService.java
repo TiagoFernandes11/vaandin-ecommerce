@@ -19,7 +19,7 @@ public class ItemPedidoService {
 
     public List<ItemPedido> findAllItems(String clienteEmail){
         Usuario usuario = usuarioService.find(clienteEmail);
-        Pedido pedido = pedidoService.find(usuario.getId());
+        Pedido pedido = pedidoService.findCarrinho(usuario.getId());
         if(pedido != null){
             return pedido.getItens();
         } else {

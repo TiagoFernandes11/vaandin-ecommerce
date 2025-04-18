@@ -38,20 +38,31 @@ public class PedidoService {
     }
 
     public boolean exists(Long idCliente){
-        Optional<Pedido> carrinho = pedidoRepository.findByIdCliente(idCliente);
-        return carrinho.isPresent();
+        List<Pedido> pedidos = pedidoRepository.findAllByIdCliente(idCliente).orElse(null);
+        if (!Objects.isNull(pedidos)){
+            return pedidos.getLast().getStatus().equals(StatusPedido.CARRINHO);
+        }
+        return false;
     }
 
-    public Pedido find(String emailCliente){
+    public Pedido findCarrinho(String emailCliente){
         Usuario usuario = usuarioRepository.findByEmail(emailCliente).orElse(null);
         if(!Objects.isNull(usuario)){
-            return find(usuario.getId());
+            return findCarrinho(usuario.getId());
         }
         return null;
     }
 
-    public Pedido find(Long idCliente){
-        return pedidoRepository.findByIdCliente(idCliente).orElse(null);
+    public Pedido findCarrinho(Long idCliente){
+        List<Pedido> pedidos = pedidoRepository.findAllByIdCliente(idCliente).orElse(null);
+        Pedido ultimoCarrinho = null;
+        if(!Objects.isNull(pedidos) && !pedidos.isEmpty()){
+            ultimoCarrinho = pedidos.getLast();
+        }
+        if(!Objects.isNull(ultimoCarrinho) && ultimoCarrinho.getStatus().equals(StatusPedido.CARRINHO)){
+            return ultimoCarrinho;
+        }
+        return null;
     }
 
     public List<Pedido> findAll(){return pedidoRepository.findAll();}
@@ -77,7 +88,7 @@ public class PedidoService {
     }
 
     public void adicionarProduto(Long idCliente, Long idProduto) {
-        Pedido pedido = pedidoRepository.findByIdCliente(idCliente).orElse(null);
+        Pedido pedido = findCarrinho(idCliente);
         Produto produto = produtoRepository.findById(idProduto).orElse(null);
         ItemPedido itemPedido = null;
 
@@ -113,7 +124,7 @@ public class PedidoService {
     }
 
     private void removerProduto(Long idCliente, Long idProduto){
-        Pedido pedido = pedidoRepository.findByIdCliente(idCliente).orElse(null);
+        Pedido pedido = findCarrinho(idCliente);
         Produto produto = produtoRepository.findById(idProduto).orElse(null);
         ItemPedido itemPedido = null;
 

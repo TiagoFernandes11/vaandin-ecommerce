@@ -2,7 +2,6 @@ package study.course.VaadinStudy.view.components;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
@@ -13,7 +12,6 @@ import study.course.VaadinStudy.entities.Pedido;
 import study.course.VaadinStudy.entities.Produto;
 import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.services.PedidoService;
-import study.course.VaadinStudy.services.ItemPedidoService;
 import study.course.VaadinStudy.services.UsuarioService;
 
 import java.io.ByteArrayInputStream;
@@ -39,7 +37,7 @@ public class Carrinho extends VerticalLayout {
         Usuario cliente = usuarioService.find(authenticationContext.getPrincipalName().orElse(null));
 
         if(pedidoService.exists(cliente.getEmail())){
-            Pedido pedido = pedidoService.find(cliente.getEmail());
+            Pedido pedido = pedidoService.findCarrinho(cliente.getEmail());
             List<ItemPedido> itens = pedido.getItens();
 
             for(ItemPedido item : itens){

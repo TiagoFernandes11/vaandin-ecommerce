@@ -14,6 +14,7 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import org.apache.commons.io.input.TeeInputStream;
+import study.course.VaadinStudy.entities.Endereco;
 import study.course.VaadinStudy.entities.ItemPedido;
 import study.course.VaadinStudy.entities.Produto;
 import study.course.VaadinStudy.services.ItemPedidoService;
@@ -137,14 +138,19 @@ public class CarrinhoView extends HorizontalLayout {
         H4 cepTitulo = new H4("Seu cep: ");
         TextField inputCep = new TextField();
         Button btnBuscaCep = new Button("Buscar", event-> {
-            rua.setValue("Rua teste");
-            numero.setValue("69");
-            estado.setValue("ET");
-            cidade.setValue("São Teste");
-            bairro.setValue("Baiiro Teste");
+            String cep = inputCep.getValue();
+            Endereco enderecoAPartirDoCep = getEnderecoPeloCep(cep);
+
+            rua.setValue(enderecoAPartirDoCep.getLogradouro());
+            numero.setValue(Integer.toString(enderecoAPartirDoCep.getNumero()));
+            estado.setValue(enderecoAPartirDoCep.getEstado());
+            cidade.setValue(enderecoAPartirDoCep.getCidade());
+            bairro.setValue(enderecoAPartirDoCep.getBairro());
         });
 
         buscaCep.add(inputCep, btnBuscaCep);
+
+        H4 entregaTitulo = new H4("Forma de entrega: ");
 
         Button btnFinalizarCompra = new Button("Finalizar compra", event -> {
             Notification.show("Não implementado");
@@ -156,7 +162,7 @@ public class CarrinhoView extends HorizontalLayout {
 
         HorizontalLayout menuInformacoesDeEntrega = new HorizontalLayout();
         menuInformacoesDeEntrega.addClassNames(LumoUtility.Width.FULL);
-        menuDireito.add(cepTitulo, buscaCep, listBox);
+        menuDireito.add(cepTitulo, buscaCep, entregaTitulo, listBox);
 
         menuInformacoesDeEntrega.add(menuDireito, endereco);
 
@@ -165,5 +171,9 @@ public class CarrinhoView extends HorizontalLayout {
         menuDireitoEBotoes.add(menuInformacoesDeEntrega, btnEscolherMaisProdutos, btnFinalizarCompra);
 
         add(menuDireitoEBotoes);
+    }
+
+    private Endereco getEnderecoPeloCep(String cep){
+        return new Endereco(null, "06969-069", "Rua teste", 69, "São Teste", "ET", "Bairro teste");
     }
 }

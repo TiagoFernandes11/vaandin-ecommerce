@@ -16,10 +16,11 @@ public class Endereco {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long Id;
+    private Long Id;
     private String cep;
     private String logradouro;
     private int numero;
     private String cidade;
     private String estado;
+    private String bairro;
 }

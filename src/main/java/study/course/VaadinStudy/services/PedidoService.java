@@ -144,8 +144,9 @@ public class PedidoService {
                     if(pedido.getItens().isEmpty()){
                         pedidoRepository.delete(pedido);
                     }
-                    itemPedidoRepository.delete(item);
                     calcularTotalPedido(pedido);
+                    pedidoRepository.save(pedido);
+                    itemPedidoRepository.delete(item);
                     return;
                 } else{
                     int quantidade = item.getQuantidade();

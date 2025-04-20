@@ -34,18 +34,33 @@ import java.util.Objects;
 @Route(value = "/carrinho", layout = MainLayout.class)
 public class CarrinhoView extends HorizontalLayout {
 
+    private final AuthenticationContext authenticationContext;
+    private final ItemPedidoService itemPedidoService;
+    private final ProdutoService produtoService;
+    private final PedidoService pedidoService;
+    private final UsuarioService usuarioService;
+
     public CarrinhoView(AuthenticationContext authenticationContext, ItemPedidoService itemPedidoService, ProdutoService produtoService, PedidoService pedidoService, UsuarioService usuarioService){
+        this.authenticationContext = authenticationContext;
+        this.itemPedidoService = itemPedidoService;
+        this.produtoService = produtoService;
+        this.pedidoService = pedidoService;
+        this.usuarioService = usuarioService;
+
         addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.CENTER);
 
+        montarMenuEsquerdo();
+        montarMenuDireito();
+    }
+
+    public void montarMenuEsquerdo(){
         Button buttonVoltar = new Button("Voltar para a pagina principal", event -> {
             UI.getCurrent().navigate(MainView.class);
         });
 
         VerticalLayout menuEsquerdo = new VerticalLayout();
-        VerticalLayout menuDireito = new VerticalLayout();
 
         menuEsquerdo.addClassNames(LumoUtility.Border.ALL);
-        menuDireito.addClassNames(LumoUtility.Border.ALL);
 
         Carrinho carrinho = new Carrinho(authenticationContext, usuarioService, pedidoService);
         carrinho.addClassNames(LumoUtility.Border.ALL);
@@ -77,30 +92,12 @@ public class CarrinhoView extends HorizontalLayout {
         menuEsquerdo.add(buttonVoltar, carrinho, outrosProdutosTitulo, miniVitrine);
         botaoEMenuEsquerdo.add(buttonVoltar,menuEsquerdo);
 
-        ListBox<String> listBox = new ListBox<>();
-        listBox.setItems("Entrega padrão", "Entrega agendada", "Entrega expressa");
-        listBox.setValue("Entrega padrão");
+        add(botaoEMenuEsquerdo);
+    }
 
-        HorizontalLayout buscaCep = new HorizontalLayout();
-        H4 cepTitulo = new H4("Seu cep: ");
-        TextField inputCep = new TextField();
-        Button btnBuscaCep = new Button("Buscar", event-> {
-
-        });
-
-        buscaCep.add(inputCep, btnBuscaCep);
-
-        Button btnFinalizarCompra = new Button("Finalizar compra", event -> {
-            Notification.show("Não implementado");
-        });
-
-        Button btnEscolherMaisProdutos = new Button("Escolher mais produtos", event -> {
-            UI.getCurrent().navigate(MainView.class);
-        });
-
-        HorizontalLayout menuInformacoesDeEntrega = new HorizontalLayout();
-        menuInformacoesDeEntrega.addClassNames(LumoUtility.Width.FULL);
-        menuDireito.add(cepTitulo, buscaCep, listBox);
+    private void montarMenuDireito() {
+        VerticalLayout menuDireito = new VerticalLayout();
+        menuDireito.addClassNames(LumoUtility.Border.ALL);
 
         VerticalLayout endereco = new VerticalLayout();
         H4 enderecoTitulo = new H4("Seu endereço: ");
@@ -132,12 +129,41 @@ public class CarrinhoView extends HorizontalLayout {
 
         endereco.add(ruaENumero, estado, cidade, bairro);
 
+        ListBox<String> listBox = new ListBox<>();
+        listBox.setItems("Entrega padrão", "Entrega agendada", "Entrega expressa");
+        listBox.setValue("Entrega padrão");
+
+        HorizontalLayout buscaCep = new HorizontalLayout();
+        H4 cepTitulo = new H4("Seu cep: ");
+        TextField inputCep = new TextField();
+        Button btnBuscaCep = new Button("Buscar", event-> {
+            rua.setValue("Rua teste");
+            numero.setValue("69");
+            estado.setValue("ET");
+            cidade.setValue("São Teste");
+            bairro.setValue("Baiiro Teste");
+        });
+
+        buscaCep.add(inputCep, btnBuscaCep);
+
+        Button btnFinalizarCompra = new Button("Finalizar compra", event -> {
+            Notification.show("Não implementado");
+        });
+
+        Button btnEscolherMaisProdutos = new Button("Escolher mais produtos", event -> {
+            UI.getCurrent().navigate(MainView.class);
+        });
+
+        HorizontalLayout menuInformacoesDeEntrega = new HorizontalLayout();
+        menuInformacoesDeEntrega.addClassNames(LumoUtility.Width.FULL);
+        menuDireito.add(cepTitulo, buscaCep, listBox);
+
         menuInformacoesDeEntrega.add(menuDireito, endereco);
 
         VerticalLayout menuDireitoEBotoes = new VerticalLayout();
 
         menuDireitoEBotoes.add(menuInformacoesDeEntrega, btnEscolherMaisProdutos, btnFinalizarCompra);
 
-        add(botaoEMenuEsquerdo, menuDireitoEBotoes);
+        add(menuDireitoEBotoes);
     }
 }

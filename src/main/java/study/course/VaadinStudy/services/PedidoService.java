@@ -29,6 +29,13 @@ public class PedidoService {
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    public void create(Long idCliente){
+        List<ItemPedido> produtos = new ArrayList<>();
+        Pedido pedido = new Pedido(null, idCliente, StatusPedido.CARRINHO, new Date(), false,
+                null, null, null, null, produtos, 0.00);
+        pedidoRepository.save(pedido);
+    }
+
     public boolean exists (String email){
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
         if(!Objects.isNull(usuario)){
@@ -66,12 +73,6 @@ public class PedidoService {
     }
 
     public List<Pedido> findAll(){return pedidoRepository.findAll();}
-
-    public void create(Long idCliente){
-        List<ItemPedido> produtos = new ArrayList<>();
-        Pedido pedido = new Pedido(null, idCliente, StatusPedido.CARRINHO, new Date(), false, null, null, null, produtos, 0.00);
-        pedidoRepository.save(pedido);
-    }
 
     public void adicionarProduto(String email, Long idProduto){
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);

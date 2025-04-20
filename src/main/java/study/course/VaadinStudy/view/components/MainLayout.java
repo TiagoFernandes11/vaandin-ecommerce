@@ -20,7 +20,7 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.springframework.security.core.context.SecurityContextHolder;
 import study.course.VaadinStudy.view.admin.ManageProductsView;
-import study.course.VaadinStudy.view.publico.CarrinhoView;
+import study.course.VaadinStudy.view.autenticado.CarrinhoView;
 import study.course.VaadinStudy.view.publico.LoginView;
 import study.course.VaadinStudy.view.publico.MainView;
 import study.course.VaadinStudy.view.publico.RegisterView;

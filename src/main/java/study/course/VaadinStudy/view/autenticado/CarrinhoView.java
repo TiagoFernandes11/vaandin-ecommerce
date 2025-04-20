@@ -1,4 +1,4 @@
-package study.course.VaadinStudy.view.publico;
+package study.course.VaadinStudy.view.autenticado;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -7,13 +7,13 @@ import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
+import org.apache.commons.io.input.TeeInputStream;
 import study.course.VaadinStudy.entities.ItemPedido;
 import study.course.VaadinStudy.entities.Produto;
 import study.course.VaadinStudy.services.ItemPedidoService;
@@ -23,6 +23,7 @@ import study.course.VaadinStudy.services.UsuarioService;
 import study.course.VaadinStudy.view.components.Carrinho;
 import study.course.VaadinStudy.view.components.MainLayout;
 import study.course.VaadinStudy.view.components.Vitrine;
+import study.course.VaadinStudy.view.publico.MainView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,8 +81,14 @@ public class CarrinhoView extends HorizontalLayout {
         listBox.setItems("Entrega padrão", "Entrega agendada", "Entrega expressa");
         listBox.setValue("Entrega padrão");
 
+        HorizontalLayout buscaCep = new HorizontalLayout();
         H4 cepTitulo = new H4("Seu cep: ");
         TextField inputCep = new TextField();
+        Button btnBuscaCep = new Button("Buscar", event-> {
+
+        });
+
+        buscaCep.add(inputCep, btnBuscaCep);
 
         Button btnFinalizarCompra = new Button("Finalizar compra", event -> {
             Notification.show("Não implementado");
@@ -93,7 +100,7 @@ public class CarrinhoView extends HorizontalLayout {
 
         HorizontalLayout menuInformacoesDeEntrega = new HorizontalLayout();
         menuInformacoesDeEntrega.addClassNames(LumoUtility.Width.FULL);
-        menuDireito.add(cepTitulo, inputCep, listBox);
+        menuDireito.add(cepTitulo, buscaCep, listBox);
 
         VerticalLayout endereco = new VerticalLayout();
         H4 enderecoTitulo = new H4("Seu endereço: ");
@@ -101,12 +108,29 @@ public class CarrinhoView extends HorizontalLayout {
 
         endereco.setClassName(LumoUtility.Border.ALL);
 
-        H5 tituloEndereco = new H5("Principal");
-        Span ruaENumero = new Span("Rua dos testes, 69");
-        Span bairroCidadeEEstado = new Span("Bairro dos testes - São Teste - ST");
-        Span cep = new Span("CEP: 696969-060");
+        HorizontalLayout ruaENumero = new HorizontalLayout();
+        TextField rua = new TextField("Rua");
+        TextField numero = new TextField("Numero");
+        ruaENumero.add(rua, numero);
 
-        endereco.add(tituloEndereco, ruaENumero, bairroCidadeEEstado, cep);
+        TextField estado = new TextField("Estado");
+        TextField cidade = new TextField("Cidade");
+        TextField bairro = new TextField("Bairro");
+
+        rua.setMaxLength(50);
+        numero.setMaxLength(5);
+        estado.setMaxLength(50);
+        cidade.setMaxLength(30);
+        bairro.setMaxLength(30);
+
+        rua.getStyle().set("width", "80%");
+        numero.getStyle().set("width", "20%");
+        ruaENumero.setClassName(LumoUtility.Width.FULL);
+        estado.setClassName(LumoUtility.Width.FULL);
+        cidade.setClassName(LumoUtility.Width.FULL);
+        bairro.setClassName(LumoUtility.Width.FULL);
+
+        endereco.add(ruaENumero, estado, cidade, bairro);
 
         menuInformacoesDeEntrega.add(menuDireito, endereco);
 

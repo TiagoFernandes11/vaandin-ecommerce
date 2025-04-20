@@ -17,20 +17,16 @@ public class Pedido {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long idCliente;
-
     private String status;
-
     private Date dataCriacao;
-
     private boolean pago;
-
     private Date dataPagamento;
-
     private Date dataEntrega;
-
     private String tipoDeEntrega;
+
+    @ManyToOne
+    private Endereco enderecoEntrega;
 
     @OneToMany(fetch = FetchType.EAGER)
     private List<ItemPedido> itens;

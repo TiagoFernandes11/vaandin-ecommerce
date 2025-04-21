@@ -14,13 +14,10 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import org.apache.commons.io.input.TeeInputStream;
-import study.course.VaadinStudy.entities.Endereco;
-import study.course.VaadinStudy.entities.ItemPedido;
-import study.course.VaadinStudy.entities.Produto;
-import study.course.VaadinStudy.services.ItemPedidoService;
-import study.course.VaadinStudy.services.PedidoService;
-import study.course.VaadinStudy.services.ProdutoService;
-import study.course.VaadinStudy.services.UsuarioService;
+import study.course.VaadinStudy.constants.StatusPedido;
+import study.course.VaadinStudy.constants.TiposDeEntrega;
+import study.course.VaadinStudy.entities.*;
+import study.course.VaadinStudy.services.*;
 import study.course.VaadinStudy.view.components.Carrinho;
 import study.course.VaadinStudy.view.components.MainLayout;
 import study.course.VaadinStudy.view.components.Vitrine;
@@ -40,13 +37,15 @@ public class CarrinhoView extends HorizontalLayout {
     private final ProdutoService produtoService;
     private final PedidoService pedidoService;
     private final UsuarioService usuarioService;
+    private final EnderecoService enderecoService;
 
-    public CarrinhoView(AuthenticationContext authenticationContext, ItemPedidoService itemPedidoService, ProdutoService produtoService, PedidoService pedidoService, UsuarioService usuarioService){
+    public CarrinhoView(AuthenticationContext authenticationContext, ItemPedidoService itemPedidoService, ProdutoService produtoService, PedidoService pedidoService, UsuarioService usuarioService, EnderecoService enderecoService){
         this.authenticationContext = authenticationContext;
         this.itemPedidoService = itemPedidoService;
         this.produtoService = produtoService;
         this.pedidoService = pedidoService;
         this.usuarioService = usuarioService;
+        this.enderecoService = enderecoService;
 
         addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.CENTER);
 
@@ -131,8 +130,8 @@ public class CarrinhoView extends HorizontalLayout {
         endereco.add(ruaENumero, estado, cidade, bairro);
 
         ListBox<String> listBox = new ListBox<>();
-        listBox.setItems("Entrega padrão", "Entrega agendada", "Entrega expressa");
-        listBox.setValue("Entrega padrão");
+        listBox.setItems(TiposDeEntrega.PADRAO, TiposDeEntrega.AGENDADA, TiposDeEntrega.EXPRESSA);
+        listBox.setValue(TiposDeEntrega.PADRAO);
 
         HorizontalLayout buscaCep = new HorizontalLayout();
         H4 cepTitulo = new H4("Seu cep: ");
@@ -142,7 +141,7 @@ public class CarrinhoView extends HorizontalLayout {
             Endereco enderecoAPartirDoCep = getEnderecoPeloCep(cep);
 
             rua.setValue(enderecoAPartirDoCep.getLogradouro());
-            numero.setValue(Integer.toString(enderecoAPartirDoCep.getNumero()));
+            numero.setValue(Long.toString(enderecoAPartirDoCep.getNumero()));
             estado.setValue(enderecoAPartirDoCep.getEstado());
             cidade.setValue(enderecoAPartirDoCep.getCidade());
             bairro.setValue(enderecoAPartirDoCep.getBairro());
@@ -153,6 +152,36 @@ public class CarrinhoView extends HorizontalLayout {
         H4 entregaTitulo = new H4("Forma de entrega: ");
 
         Button btnFinalizarCompra = new Button("Finalizar compra", event -> {
+            Usuario usuario = usuarioService.find(authenticationContext.getPrincipalName().orElse(null));
+            Pedido pedido = pedidoService.findCarrinho(authenticationContext.getPrincipalName().orElse(null));
+
+            if(preenchimentoEnderecoValido()){
+                Endereco enderecoPedido = new Endereco(
+                        null,
+                        inputCep.getValue(),
+                        rua.getValue(),
+                        Long.parseLong(numero.getValue()),
+                        cidade.getValue(),
+                        estado.getValue(),
+                        bairro.getValue()
+                );
+
+                if(Objects.nonNull(usuario) && Objects.nonNull(pedido)){
+                    Endereco endereco1 = enderecoService.find(enderecoPedido.getLogradouro(), enderecoPedido.getNumero());
+
+                    if(!enderecoService.exists(enderecoPedido)){
+                        enderecoService.save(enderecoPedido);
+                        pedido.setEnderecoEntrega(enderecoPedido);
+                    } else {
+                        pedido.setEnderecoEntrega(endereco1);
+                    }
+
+                    pedido.setTipoDeEntrega(listBox.getValue());
+                    pedido.setStatus(StatusPedido.PENDENTE);
+                    pedidoService.save(pedido);
+                }
+            }
+
             Notification.show("Não implementado");
         });
 
@@ -173,7 +202,11 @@ public class CarrinhoView extends HorizontalLayout {
         add(menuDireitoEBotoes);
     }
 
+    private boolean preenchimentoEnderecoValido() {
+        return true;
+    }
+
     private Endereco getEnderecoPeloCep(String cep){
-        return new Endereco(null, "06969-069", "Rua teste", 69, "São Teste", "ET", "Bairro teste");
+        return new Endereco(null, "06969-069", "Rua teste", 69L, "São Teste", "ET", "Bairro teste");
     }
 }

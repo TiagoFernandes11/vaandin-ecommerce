@@ -167,4 +167,8 @@ public class PedidoService {
             pedido.setTotal(pedido.getTotal() + item.getSubTotal());
         }
     }
+
+    public void save(Pedido pedido) {
+        pedidoRepository.save(pedido);
+    }
 }

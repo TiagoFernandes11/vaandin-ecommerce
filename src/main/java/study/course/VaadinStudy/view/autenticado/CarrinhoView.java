@@ -13,7 +13,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
-import org.apache.commons.io.input.TeeInputStream;
 import study.course.VaadinStudy.constants.StatusPedido;
 import study.course.VaadinStudy.constants.TiposDeEntrega;
 import study.course.VaadinStudy.entities.*;
@@ -30,7 +29,7 @@ import java.util.Objects;
 @PageTitle("Carrinho")
 @RolesAllowed(value = {"ROLE_USER", "ROLE_ADMIN"})
 @Route(value = "/carrinho", layout = MainLayout.class)
-public class CarrinhoView extends HorizontalLayout {
+public class CarrinhoView extends VerticalLayout {
 
     private final AuthenticationContext authenticationContext;
     private final ItemPedidoService itemPedidoService;
@@ -47,17 +46,22 @@ public class CarrinhoView extends HorizontalLayout {
         this.usuarioService = usuarioService;
         this.enderecoService = enderecoService;
 
-        addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.CENTER);
-
-        montarMenuEsquerdo();
-        montarMenuDireito();
-    }
-
-    public void montarMenuEsquerdo(){
         Button buttonVoltar = new Button("Voltar para a pagina principal", event -> {
             UI.getCurrent().navigate(MainView.class);
         });
 
+        HorizontalLayout menus = new HorizontalLayout();
+
+        menus.addClassNames(LumoUtility.Width.FULL, LumoUtility.AlignItems.START, LumoUtility.JustifyContent.CENTER);
+
+        VerticalLayout menuEsquerdo = montarMenuEsquerdo();
+        VerticalLayout menuDireito = montarMenuDireito();
+
+        menus.add(menuEsquerdo, menuDireito);
+        add(buttonVoltar, menus);
+    }
+
+    public VerticalLayout montarMenuEsquerdo(){
         VerticalLayout menuEsquerdo = new VerticalLayout();
 
         menuEsquerdo.addClassNames(LumoUtility.Border.ALL);
@@ -67,35 +71,14 @@ public class CarrinhoView extends HorizontalLayout {
 
         H3 outrosProdutosTitulo = new H3("Outros produtos");
 
-        List<Produto> listaProdutos = produtoService.findAll().stream().filter(produto -> {
-            List<ItemPedido> itens= itemPedidoService.findAllItems(authenticationContext.getPrincipalName().orElse(null));
-            if(!Objects.isNull(itens)){
-                for(ItemPedido item : itens){
-                    if(Objects.equals(item.getProduto().getSku(), produto.getSku())){
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }).toList();
+        Vitrine miniVitrine = new Vitrine(authenticationContext, getProdutosMiniVitrine(), usuarioService, pedidoService);
 
-        List<Produto> produtosMiniVitrine = new ArrayList<>();
+        menuEsquerdo.add(carrinho, outrosProdutosTitulo, miniVitrine);
 
-        for(int i = 0; produtosMiniVitrine.size() < 3; i++){
-            produtosMiniVitrine.add(listaProdutos.get(i));
-        }
-
-        Vitrine miniVitrine = new Vitrine(authenticationContext, produtosMiniVitrine, usuarioService, pedidoService);
-
-        VerticalLayout botaoEMenuEsquerdo = new VerticalLayout();
-
-        menuEsquerdo.add(buttonVoltar, carrinho, outrosProdutosTitulo, miniVitrine);
-        botaoEMenuEsquerdo.add(buttonVoltar,menuEsquerdo);
-
-        add(botaoEMenuEsquerdo);
+        return menuEsquerdo;
     }
 
-    private void montarMenuDireito() {
+    private VerticalLayout montarMenuDireito() {
         VerticalLayout menuDireito = new VerticalLayout();
         menuDireito.addClassNames(LumoUtility.Border.ALL);
 
@@ -152,9 +135,11 @@ public class CarrinhoView extends HorizontalLayout {
         H4 entregaTitulo = new H4("Forma de entrega: ");
 
         Button btnFinalizarCompra = new Button("Finalizar compra", event -> {
+
             Usuario usuario = usuarioService.find(authenticationContext.getPrincipalName().orElse(null));
             Pedido pedido = pedidoService.findCarrinho(authenticationContext.getPrincipalName().orElse(null));
 
+            //todo método de validação
             if(preenchimentoEnderecoValido()){
                 Endereco enderecoPedido = new Endereco(
                         null,
@@ -182,12 +167,17 @@ public class CarrinhoView extends HorizontalLayout {
                 }
             }
 
-            Notification.show("Não implementado");
+            Notification.show("Pedido finalizado com sucesso!");
         });
 
         Button btnEscolherMaisProdutos = new Button("Escolher mais produtos", event -> {
             UI.getCurrent().navigate(MainView.class);
         });
+
+        HorizontalLayout btnEscolherEFinalizar = new HorizontalLayout();
+        btnEscolherEFinalizar.add(btnEscolherMaisProdutos, btnFinalizarCompra);
+        btnEscolherEFinalizar.addClassName(LumoUtility.Width.FULL);
+        btnEscolherEFinalizar.addClassName(LumoUtility.JustifyContent.BETWEEN);
 
         HorizontalLayout menuInformacoesDeEntrega = new HorizontalLayout();
         menuInformacoesDeEntrega.addClassNames(LumoUtility.Width.FULL);
@@ -197,9 +187,25 @@ public class CarrinhoView extends HorizontalLayout {
 
         VerticalLayout menuDireitoEBotoes = new VerticalLayout();
 
-        menuDireitoEBotoes.add(menuInformacoesDeEntrega, btnEscolherMaisProdutos, btnFinalizarCompra);
+        menuDireitoEBotoes.add(menuInformacoesDeEntrega, btnEscolherEFinalizar);
 
-        add(menuDireitoEBotoes);
+        return menuDireitoEBotoes;
+    }
+
+    private List<Produto> getProdutosMiniVitrine() {
+        List<Produto> listaProdutos = produtoService.findAll().stream().filter(produto -> {
+            List<ItemPedido> itens= itemPedidoService.findAllItems(authenticationContext.getPrincipalName().orElse(null));
+            if(!Objects.isNull(itens)){
+                for(ItemPedido item : itens){
+                    if(Objects.equals(item.getProduto().getSku(), produto.getSku())){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }).toList();
+
+        return listaProdutos.stream().limit(3).toList();
     }
 
     private boolean preenchimentoEnderecoValido() {

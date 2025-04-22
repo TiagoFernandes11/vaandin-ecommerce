@@ -134,7 +134,7 @@ public class ManageCategoriesView extends VerticalLayout {
 
         horizontalLayout.add(botaoConfirmar, botaoCancelar);
 
-        verticalLayout.add("Tem certeza de que quer excluir o usuario ?");
+        verticalLayout.add("Tem certeza de que quer excluir a categoria ?");
         verticalLayout.add(horizontalLayout);
 
         dialog.add(verticalLayout);

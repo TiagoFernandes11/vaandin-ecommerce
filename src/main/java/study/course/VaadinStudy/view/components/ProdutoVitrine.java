@@ -40,12 +40,21 @@ public class ProdutoVitrine extends VerticalLayout {
 
         H4 nomeProduto = new H4(produto.getNome());
 
+        HorizontalLayout precoEBotao = getPrecoEBotao(produto, usuarioService, pedidoService);
+        precoEBotao.setWidth(imagem.getWidth());
+        precoEBotao.setAlignItems(Alignment.CENTER);
+        precoEBotao.setJustifyContentMode(JustifyContentMode.BETWEEN);
+
+        add(imagem, nomeProduto, precoEBotao);
+    }
+
+    private HorizontalLayout getPrecoEBotao(Produto produto, UsuarioService usuarioService, PedidoService pedidoService) {
         HorizontalLayout precoEBotao = new HorizontalLayout();
 
         Text preco = new Text("R$ " + produto.getPreco().toString());
         Button adicionarCarrinhoButton = new Button("Comprar", event -> {
             Usuario usuario = usuarioService.find(this.authenticationContext.getPrincipalName().orElse(null));
-            if(!Objects.isNull(usuario)){
+            if(Objects.nonNull(usuario)){
                 pedidoService.adicionarProduto(usuario.getId(), produto.getId());
             } else {
                 UI.getCurrent().navigate(LoginView.class);
@@ -53,10 +62,6 @@ public class ProdutoVitrine extends VerticalLayout {
         });
 
         precoEBotao.add(preco, adicionarCarrinhoButton);
-        precoEBotao.setWidth(imagem.getWidth());
-        precoEBotao.setAlignItems(Alignment.CENTER);
-        precoEBotao.setJustifyContentMode(JustifyContentMode.BETWEEN);
-
-        add(imagem, nomeProduto, precoEBotao);
+        return precoEBotao;
     }
 }

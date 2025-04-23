@@ -2,7 +2,8 @@ package study.course.VaadinStudy.view.autenticado;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -22,7 +23,6 @@ import study.course.VaadinStudy.view.components.MainLayout;
 import study.course.VaadinStudy.view.components.Vitrine;
 import study.course.VaadinStudy.view.publico.MainView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -79,8 +79,6 @@ public class CarrinhoView extends VerticalLayout {
     }
 
     private VerticalLayout montarMenuDireito() {
-        VerticalLayout menuDireito = new VerticalLayout();
-        menuDireito.addClassNames(LumoUtility.Border.ALL);
 
         VerticalLayout endereco = new VerticalLayout();
         H4 enderecoTitulo = new H4("Seu endereço: ");
@@ -134,23 +132,22 @@ public class CarrinhoView extends VerticalLayout {
 
         H4 entregaTitulo = new H4("Forma de entrega: ");
 
-        Button btnFinalizarCompra = new Button("Finalizar compra", event -> {
+        Button btnFinalizarCompra = new Button("Ir para o pagamento", event -> {
 
             Usuario usuario = usuarioService.find(authenticationContext.getPrincipalName().orElse(null));
             Pedido pedido = pedidoService.findCarrinho(authenticationContext.getPrincipalName().orElse(null));
 
-            //todo método de validação
-            if(preenchimentoEnderecoValido()){
-                Endereco enderecoPedido = new Endereco(
-                        null,
-                        inputCep.getValue(),
-                        rua.getValue(),
-                        Long.parseLong(numero.getValue()),
-                        cidade.getValue(),
-                        estado.getValue(),
-                        bairro.getValue()
-                );
+            Endereco enderecoPedido = new Endereco(
+                    null,
+                    inputCep.getValue(),
+                    rua.getValue(),
+                    Long.parseLong(numero.getValue().isBlank() ? "0" : numero.getValue()),
+                    cidade.getValue(),
+                    estado.getValue(),
+                    bairro.getValue()
+            );
 
+            if(preenchimentoEnderecoValido(enderecoPedido)){
                 if(Objects.nonNull(usuario) && Objects.nonNull(pedido)){
                     Endereco endereco1 = enderecoService.find(enderecoPedido.getLogradouro(), enderecoPedido.getNumero());
 
@@ -164,32 +161,37 @@ public class CarrinhoView extends VerticalLayout {
                     pedido.setTipoDeEntrega(listBox.getValue());
                     pedido.setStatus(StatusPedido.PENDENTE);
                     pedidoService.save(pedido);
-                }
-            }
 
-            Notification.show("Pedido finalizado com sucesso!");
+                    UI.getCurrent().navigate(FinalizarPagamentoView.class);
+                }
+            } else {
+                Notification.show("Todos os campos devem ser preenchidos");
+            };
         });
 
         Button btnEscolherMaisProdutos = new Button("Escolher mais produtos", event -> {
             UI.getCurrent().navigate(MainView.class);
         });
 
+        VerticalLayout buscaCepEFormaDeEntrega = new VerticalLayout();
+        buscaCepEFormaDeEntrega.addClassNames(LumoUtility.Border.ALL);
+
+        HorizontalLayout menuInformacoesDeEntrega = new HorizontalLayout();
+        buscaCepEFormaDeEntrega.add(cepTitulo, buscaCep, entregaTitulo, listBox);
+
+        menuInformacoesDeEntrega.addClassNames(LumoUtility.Width.FULL);
+
+        menuInformacoesDeEntrega.add(buscaCepEFormaDeEntrega, endereco);
+
         HorizontalLayout btnEscolherEFinalizar = new HorizontalLayout();
         btnEscolherEFinalizar.add(btnEscolherMaisProdutos, btnFinalizarCompra);
         btnEscolherEFinalizar.addClassName(LumoUtility.Width.FULL);
         btnEscolherEFinalizar.addClassName(LumoUtility.JustifyContent.BETWEEN);
 
-        HorizontalLayout menuInformacoesDeEntrega = new HorizontalLayout();
-        menuInformacoesDeEntrega.addClassNames(LumoUtility.Width.FULL);
-        menuDireito.add(cepTitulo, buscaCep, entregaTitulo, listBox);
+        VerticalLayout menuDireito = new VerticalLayout();
+        menuDireito.add(menuInformacoesDeEntrega, btnEscolherEFinalizar);
 
-        menuInformacoesDeEntrega.add(menuDireito, endereco);
-
-        VerticalLayout menuDireitoEBotoes = new VerticalLayout();
-
-        menuDireitoEBotoes.add(menuInformacoesDeEntrega, btnEscolherEFinalizar);
-
-        return menuDireitoEBotoes;
+        return menuDireito;
     }
 
     private List<Produto> getProdutosMiniVitrine() {
@@ -208,9 +210,16 @@ public class CarrinhoView extends VerticalLayout {
         return listaProdutos.stream().limit(3).toList();
     }
 
-    private boolean preenchimentoEnderecoValido() {
-        return true;
+    private boolean preenchimentoEnderecoValido(Endereco endereco) {
+
+        return endereco.getCep() != null && !endereco.getCep().isBlank() &&
+                endereco.getLogradouro() != null && !endereco.getLogradouro().isBlank() &&
+                endereco.getNumero() != null && endereco.getNumero() > 0 &&
+                endereco.getCidade() != null && !endereco.getCidade().isBlank() &&
+                endereco.getEstado() != null && !endereco.getEstado().isBlank() &&
+                endereco.getBairro() != null && !endereco.getBairro().isBlank();
     }
+
 
     private Endereco getEnderecoPeloCep(String cep){
         return new Endereco(null, "06969-069", "Rua teste", 69L, "São Teste", "ET", "Bairro teste");

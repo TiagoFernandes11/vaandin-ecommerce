@@ -4,6 +4,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -122,18 +123,37 @@ public class FinalizarPagamentoView extends VerticalLayout {
         H3 tituloMenu = new H3("Confirmação");
 
         VerticalLayout conteudoMenu = new VerticalLayout();
-        conteudoMenu.addClassNames(LumoUtility.Border.ALL);
+        conteudoMenu.addClassNames(LumoUtility.Border.ALL, LumoUtility.Padding.SMALL, LumoUtility.Gap.MEDIUM);
 
         Pedido pedido = pedidoService.findUltimoPedido(authenticationContext.getPrincipalName().orElse(null), StatusPedido.PENDENTE);
 
-        if(Objects.nonNull(pedido)){
-            for(ItemPedido itemPedido : pedido.getItens()){
+        if (Objects.nonNull(pedido)) {
+            for (ItemPedido itemPedido : pedido.getItens()) {
                 Produto produto = itemPedido.getProduto();
-                Span nomeProduto = new Span("%20s (R$%.2f x %s unid)  =  R$%.2f".formatted(produto.getNome(), produto.getPreco(), itemPedido.getQuantidade(), itemPedido.getSubTotal()));
-                conteudoMenu.add(nomeProduto);
+
+                HorizontalLayout linhaProduto = new HorizontalLayout();
+                linhaProduto.setWidthFull();
+                linhaProduto.setJustifyContentMode(JustifyContentMode.BETWEEN);
+
+                Span nome = new Span(produto.getNome());
+                Span preco = new Span("R$ %.2f".formatted(produto.getPreco()));
+                Span qtd = new Span("%d unid".formatted(itemPedido.getQuantidade()));
+                Span subtotal = new Span("R$ %.2f".formatted(itemPedido.getSubTotal()));
+
+                linhaProduto.add(nome, preco, qtd, subtotal);
+                conteudoMenu.add(linhaProduto);
             }
-            Span total = new Span("Total: R$%.2f".formatted(pedido.getTotal()));
-            conteudoMenu.add(total);
+
+            // Linha de total
+            HorizontalLayout linhaTotal = new HorizontalLayout();
+            linhaTotal.setWidthFull();
+            linhaTotal.setJustifyContentMode(JustifyContentMode.END);
+
+            Span total = new Span("Total: R$ %.2f".formatted(pedido.getTotal()));
+            total.getStyle().set("font-weight", "bold");
+
+            linhaTotal.add(total);
+            conteudoMenu.add(linhaTotal);
         }
 
         menuConfirmacao.setWidthFull();

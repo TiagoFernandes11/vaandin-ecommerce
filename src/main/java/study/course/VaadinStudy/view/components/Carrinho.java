@@ -7,6 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import study.course.VaadinStudy.constants.StatusPedido;
 import study.course.VaadinStudy.entities.ItemPedido;
 import study.course.VaadinStudy.entities.Pedido;
 import study.course.VaadinStudy.entities.Produto;
@@ -37,7 +38,7 @@ public class Carrinho extends VerticalLayout {
         Usuario cliente = usuarioService.find(authenticationContext.getPrincipalName().orElse(null));
 
         if(pedidoService.exists(cliente.getEmail())){
-            Pedido pedido = pedidoService.findCarrinho(cliente.getEmail());
+            Pedido pedido = pedidoService.findUltimoPedido(cliente.getEmail(), StatusPedido.CARRINHO);
             List<ItemPedido> itens = pedido.getItens();
 
             for(ItemPedido item : itens){

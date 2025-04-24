@@ -52,21 +52,21 @@ public class PedidoService {
         return false;
     }
 
-    public Pedido findCarrinho(String emailCliente){
+    public Pedido findUltimoPedido(String emailCliente, String statusPedido){
         Usuario usuario = usuarioRepository.findByEmail(emailCliente).orElse(null);
         if(!Objects.isNull(usuario)){
-            return findCarrinho(usuario.getId());
+            return findUltimoPedido(usuario.getId(), statusPedido);
         }
         return null;
     }
 
-    public Pedido findCarrinho(Long idCliente){
+    public Pedido findUltimoPedido(Long idCliente, String statusPedido){
         List<Pedido> pedidos = pedidoRepository.findAllByIdCliente(idCliente).orElse(null);
         Pedido ultimoCarrinho = null;
-        if(!Objects.isNull(pedidos) && !pedidos.isEmpty()){
+        if(Objects.nonNull(pedidos) && !pedidos.isEmpty()){
             ultimoCarrinho = pedidos.getLast();
         }
-        if(!Objects.isNull(ultimoCarrinho) && ultimoCarrinho.getStatus().equals(StatusPedido.CARRINHO)){
+        if(!Objects.isNull(ultimoCarrinho) && ultimoCarrinho.getStatus().equals(statusPedido)){
             return ultimoCarrinho;
         }
         return null;
@@ -89,7 +89,7 @@ public class PedidoService {
     }
 
     public void adicionarProduto(Long idCliente, Long idProduto) {
-        Pedido pedido = findCarrinho(idCliente);
+        Pedido pedido = findUltimoPedido(idCliente, StatusPedido.CARRINHO);
         Produto produto = produtoRepository.findById(idProduto).orElse(null);
         ItemPedido itemPedido = null;
 
@@ -125,7 +125,7 @@ public class PedidoService {
     }
 
     private void removerProduto(Long idCliente, Long idProduto){
-        Pedido pedido = findCarrinho(idCliente);
+        Pedido pedido = findUltimoPedido(idCliente, StatusPedido.CARRINHO);
         Produto produto = produtoRepository.findById(idProduto).orElse(null);
         ItemPedido itemPedido = null;
 

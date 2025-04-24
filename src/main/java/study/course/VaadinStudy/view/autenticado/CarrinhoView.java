@@ -135,7 +135,7 @@ public class CarrinhoView extends VerticalLayout {
         Button btnFinalizarCompra = new Button("Ir para o pagamento", event -> {
 
             Usuario usuario = usuarioService.find(authenticationContext.getPrincipalName().orElse(null));
-            Pedido pedido = pedidoService.findCarrinho(authenticationContext.getPrincipalName().orElse(null));
+            Pedido pedido = pedidoService.findUltimoPedido(authenticationContext.getPrincipalName().orElse(null), StatusPedido.CARRINHO);
 
             Endereco enderecoPedido = new Endereco(
                     null,

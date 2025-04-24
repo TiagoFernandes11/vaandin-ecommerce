@@ -2,6 +2,7 @@ package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import study.course.VaadinStudy.constants.StatusPedido;
 import study.course.VaadinStudy.entities.Pedido;
 import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.entities.ItemPedido;
@@ -19,7 +20,7 @@ public class ItemPedidoService {
 
     public List<ItemPedido> findAllItems(String clienteEmail){
         Usuario usuario = usuarioService.find(clienteEmail);
-        Pedido pedido = pedidoService.findCarrinho(usuario.getId());
+        Pedido pedido = pedidoService.findUltimoPedido(usuario.getId(), StatusPedido.CARRINHO);
         if(pedido != null){
             return pedido.getItens();
         } else {

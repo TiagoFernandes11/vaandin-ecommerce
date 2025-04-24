@@ -2,22 +2,26 @@ package study.course.VaadinStudy.view.autenticado;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.security.AuthenticationContext;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
+import study.course.VaadinStudy.constants.StatusPedido;
+import study.course.VaadinStudy.entities.ItemPedido;
+import study.course.VaadinStudy.entities.Pedido;
+import study.course.VaadinStudy.entities.Produto;
 import study.course.VaadinStudy.services.PedidoService;
 import study.course.VaadinStudy.view.components.MainLayout;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @PageTitle("Finalização de pagamento")
 @RolesAllowed(value = {"ROLE_USER", "ROLE_ADMIN"})
@@ -37,38 +41,42 @@ public class FinalizarPagamentoView extends VerticalLayout {
             UI.getCurrent().navigate(CarrinhoView.class);
         });
 
-        HorizontalLayout menus = new HorizontalLayout();
+        FormLayout layoutResponsivo = new FormLayout();
+        layoutResponsivo.setWidthFull();
+        layoutResponsivo.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("600px", 2) // 2 colunas a partir de 600px
+        );
 
         VerticalLayout menuPagamento = montarMenuPagamento();
         VerticalLayout menuConfirmacao = montarMenuConfirmacao();
 
-        menus.add(menuConfirmacao, menuPagamento);
+        layoutResponsivo.add(menuConfirmacao, menuPagamento);
 
-        add(tituloH2, voltarButton, menus);
+        add(tituloH2, voltarButton, layoutResponsivo);
     }
 
     private VerticalLayout montarMenuPagamento() {
         VerticalLayout menuPagamento = new VerticalLayout();
-        Tabs opcoesPagamentoTabs = new Tabs();
+        H3 tituloMenu = new H3("Pagamento");
 
         Tab cartaoTab = new Tab("Cartão");
         Tab pixTab = new Tab("Pix");
         Tab boletoTab = new Tab("Boleto");
-
+        Tabs opcoesPagamentoTabs = new Tabs();
         opcoesPagamentoTabs.add(cartaoTab, pixTab, boletoTab);
 
-        VerticalLayout conteudoTabCartao = new VerticalLayout();
-        VerticalLayout conteudoTabPix = new VerticalLayout();
-        VerticalLayout conteudoTabBoleto = new VerticalLayout();
-
-        conteudoTabCartao.add(new H3("Aba de cartões"));
-        conteudoTabPix.add(new H3("Aba de Pix"));
-        conteudoTabBoleto.add(new H3("Aba de Boletos"));
+        VerticalLayout conteudoTabCartao = montarConteudoTabCartao();
+        VerticalLayout conteudoTabPix = montarConteudoTabPix();
+        VerticalLayout conteudoTabBoleto = montarConteudoTabBoleto();
 
         Map<Tab, VerticalLayout> conteudosPagamento = new HashMap<>();
         conteudosPagamento.put(cartaoTab, conteudoTabCartao);
         conteudosPagamento.put(pixTab, conteudoTabPix);
         conteudosPagamento.put(boletoTab, conteudoTabBoleto);
+
+        VerticalLayout tabEConteudo = new VerticalLayout();
+        tabEConteudo.addClassNames(LumoUtility.Border.ALL);
 
         Div conteudoAtual = new Div();
         conteudoAtual.add(conteudoTabCartao);
@@ -78,16 +86,58 @@ public class FinalizarPagamentoView extends VerticalLayout {
             conteudoAtual.add(conteudosPagamento.get(opcoesPagamentoTabs.getSelectedTab()));
         });
 
-        menuPagamento.add(opcoesPagamentoTabs, conteudoAtual);
+        tabEConteudo.add(opcoesPagamentoTabs, conteudoAtual);
+
+        menuPagamento.setWidthFull();
+        menuPagamento.add(tituloMenu, tabEConteudo);
         return menuPagamento;
+    }
+
+    private VerticalLayout montarConteudoTabCartao() {
+        VerticalLayout tab = new VerticalLayout();
+        H3 tituloTab = new H3("Cartão");
+
+        tab.add(tituloTab);
+        return tab;
+    }
+
+    private VerticalLayout montarConteudoTabPix() {
+        VerticalLayout tab = new VerticalLayout();
+        H3 tituloTab = new H3("Pix");
+
+        tab.add(tituloTab);
+        return tab;
+    }
+
+    private VerticalLayout montarConteudoTabBoleto() {
+        VerticalLayout tab = new VerticalLayout();
+        H3 tituloTab = new H3("Boleto");
+
+        tab.add(tituloTab);
+        return tab;
     }
 
     private VerticalLayout montarMenuConfirmacao() {
         VerticalLayout menuConfirmacao = new VerticalLayout();
+        H3 tituloMenu = new H3("Confirmação");
+
+        VerticalLayout conteudoMenu = new VerticalLayout();
+        conteudoMenu.addClassNames(LumoUtility.Border.ALL);
+
+        Pedido pedido = pedidoService.findUltimoPedido(authenticationContext.getPrincipalName().orElse(null), StatusPedido.PENDENTE);
+
+        if(Objects.nonNull(pedido)){
+            for(ItemPedido itemPedido : pedido.getItens()){
+                Produto produto = itemPedido.getProduto();
+                Span nomeProduto = new Span("%20s (R$%.2f x %s unid)  =  R$%.2f".formatted(produto.getNome(), produto.getPreco(), itemPedido.getQuantidade(), itemPedido.getSubTotal()));
+                conteudoMenu.add(nomeProduto);
+            }
+            Span total = new Span("Total: R$%.2f".formatted(pedido.getTotal()));
+            conteudoMenu.add(total);
+        }
+
+        menuConfirmacao.setWidthFull();
+        menuConfirmacao.add(tituloMenu, conteudoMenu);
         return menuConfirmacao;
     }
-
-
-
-
 }

@@ -2,17 +2,21 @@ package study.course.VaadinStudy.view.autenticado;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
+import org.atmosphere.interceptor.AtmosphereResourceStateRecovery;
 import study.course.VaadinStudy.constants.StatusPedido;
 import study.course.VaadinStudy.entities.ItemPedido;
 import study.course.VaadinStudy.entities.Pedido;
@@ -67,6 +71,8 @@ public class FinalizarPagamentoView extends VerticalLayout {
         Tabs opcoesPagamentoTabs = new Tabs();
         opcoesPagamentoTabs.add(cartaoTab, pixTab, boletoTab);
 
+        opcoesPagamentoTabs.addClassNames(LumoUtility.Width.FULL);
+
         VerticalLayout conteudoTabCartao = montarConteudoTabCartao();
         VerticalLayout conteudoTabPix = montarConteudoTabPix();
         VerticalLayout conteudoTabBoleto = montarConteudoTabBoleto();
@@ -81,6 +87,7 @@ public class FinalizarPagamentoView extends VerticalLayout {
 
         Div conteudoAtual = new Div();
         conteudoAtual.add(conteudoTabCartao);
+        conteudoAtual.addClassNames(LumoUtility.Width.FULL);
 
         opcoesPagamentoTabs.addSelectedChangeListener(event -> {
             conteudoAtual.removeAll();
@@ -96,9 +103,48 @@ public class FinalizarPagamentoView extends VerticalLayout {
 
     private VerticalLayout montarConteudoTabCartao() {
         VerticalLayout tab = new VerticalLayout();
+        tab.addClassNames(LumoUtility.Width.FULL);
+
+        Pedido pedido = pedidoService.findUltimoPedido(authenticationContext.getPrincipalName().orElse(null), StatusPedido.PENDENTE);
+
         H3 tituloTab = new H3("Cartão");
 
-        tab.add(tituloTab);
+        HorizontalLayout numeroENome = new HorizontalLayout();
+        TextField numeroCartaoInput = new TextField("Numero do cartão");
+        TextField nomeImpressoCartaoInput = new TextField("Nome impresso");
+
+        numeroENome.addClassNames(LumoUtility.Width.FULL);
+        numeroCartaoInput.addClassNames(LumoUtility.Width.FULL);
+        nomeImpressoCartaoInput.addClassNames(LumoUtility.Width.FULL);
+        numeroENome.add(numeroCartaoInput, nomeImpressoCartaoInput);
+
+        HorizontalLayout validadeCVVeParcelas = new HorizontalLayout();
+        validadeCVVeParcelas.addClassNames(LumoUtility.Width.FULL);
+
+        DatePicker validadeCartaoInput = new DatePicker("Start date");
+        TextField codigoSegurancaoInput = new TextField("Cod de segurança");
+        Select<String> parcelasSelect = new Select<>();
+        parcelasSelect.setLabel("Parcelas");
+        parcelasSelect.setItems(
+                "1x de R$%.2f".formatted(pedido.getTotal()),
+                "2x de R$%.2f".formatted(pedido.getTotal() / 2),
+                "3x de R$%.2f".formatted(pedido.getTotal() / 3)
+                );
+        parcelasSelect.setValue("1x de R$%.2f".formatted(pedido.getTotal()));
+        validadeCartaoInput.addClassNames(LumoUtility.Width.FULL);
+        codigoSegurancaoInput.addClassNames(LumoUtility.Width.FULL);
+        parcelasSelect.addClassNames(LumoUtility.Width.FULL);
+
+        validadeCVVeParcelas.add(validadeCartaoInput, codigoSegurancaoInput,parcelasSelect);
+
+        HorizontalLayout btnPagarContainer = new HorizontalLayout();
+        Button btnPagar = new Button("Realizar pagamento", event -> {
+
+        });
+        btnPagarContainer.addClassNames(LumoUtility.Width.FULL, LumoUtility.JustifyContent.END);
+        btnPagarContainer.add(btnPagar);
+
+        tab.add(tituloTab, numeroENome, validadeCVVeParcelas, btnPagarContainer);
         return tab;
     }
 
@@ -144,7 +190,6 @@ public class FinalizarPagamentoView extends VerticalLayout {
                 conteudoMenu.add(linhaProduto);
             }
 
-            // Linha de total
             HorizontalLayout linhaTotal = new HorizontalLayout();
             linhaTotal.setWidthFull();
             linhaTotal.setJustifyContentMode(JustifyContentMode.END);

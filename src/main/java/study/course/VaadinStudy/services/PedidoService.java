@@ -46,7 +46,7 @@ public class PedidoService {
 
     public boolean exists(Long idCliente) {
         List<Pedido> pedidos = pedidoRepository.findAllByIdCliente(idCliente).orElse(null);
-        if (!Objects.isNull(pedidos) && !pedidos.isEmpty()) {
+        if (Objects.nonNull(pedidos) && !pedidos.isEmpty()) {
             return pedidos.getLast().getStatus().equals(StatusPedido.CARRINHO);
         }
         return false;
@@ -54,7 +54,7 @@ public class PedidoService {
 
     public Pedido findUltimoPedido(String emailCliente, String statusPedido) {
         Usuario usuario = usuarioRepository.findByEmail(emailCliente).orElse(null);
-        if (!Objects.isNull(usuario)) {
+        if (Objects.nonNull(usuario)) {
             return findUltimoPedido(usuario.getId(), statusPedido);
         }
         return null;
@@ -66,7 +66,7 @@ public class PedidoService {
         if (Objects.nonNull(pedidos) && !pedidos.isEmpty()) {
             ultimoCarrinho = pedidos.getLast();
         }
-        if (!Objects.isNull(ultimoCarrinho) && ultimoCarrinho.getStatus().equals(statusPedido)) {
+        if (Objects.nonNull(ultimoCarrinho) && ultimoCarrinho.getStatus().equals(statusPedido)) {
             return ultimoCarrinho;
         }
         return null;
@@ -78,7 +78,7 @@ public class PedidoService {
 
     public void adicionarProduto(String email, Long idProduto) {
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
-        if (!Objects.isNull(usuario)) {
+        if (Objects.nonNull(usuario)) {
             adicionarProduto(usuario.getId(), idProduto);
         }
     }
@@ -94,7 +94,7 @@ public class PedidoService {
 
         ItemPedido itemPedido = pedido.getItens().stream().filter(item -> Objects.equals(item.getProduto().getSku(), produto.getSku())).findFirst().orElse(null);
 
-        if (pedido.getItens().contains(itemPedido)) {
+        if (itemPedido != null) {
             itemPedido.setQuantidade(itemPedido.getQuantidade() + 1);
             itemPedido.setSubTotal(itemPedido.getProduto().getPreco() * itemPedido.getQuantidade());
             itemPedidoRepository.save(itemPedido);
@@ -103,8 +103,6 @@ public class PedidoService {
             itemPedidoRepository.save(novoItemPedido);
             pedido.getItens().add(novoItemPedido);
         }
-
-        pedido.setTotal(0.0);
 
         pedido.setTotal(pedido.getItens().stream().mapToDouble(ItemPedido::getSubTotal).sum());
         pedidoRepository.save(pedido);

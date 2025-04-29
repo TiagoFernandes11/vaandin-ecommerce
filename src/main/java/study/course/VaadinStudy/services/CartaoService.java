@@ -27,16 +27,16 @@ public class CartaoService {
 
     public void salvarCartaoCliente(Cartao cartao, String email){
         List<Cartao> cartoes = this.findAllByEmail(email);
-        for (Cartao cartao1 : cartoes){
-            if (cartao1.equals(cartao)){
-                cartao1.setAtivo(true);
-                cartao1.setRemovido(false);
-                this.salvarCartao(cartao1);
-                return;
-            }
-        }
+
+        cartoes.stream().filter(c -> c.equals(cartao)).findFirst().ifPresent(c -> {
+            c.setAtivo(true);
+            c.setRemovido(false);
+            this.salvarCartao(c);
+        });
+
         Cartao cartaoSalvo = this.findAtivoByEmail(email).orElse(null);
-        if(cartaoSalvo != null && !cartaoSalvo.equals(cartao)){
+
+        if(Objects.nonNull(cartaoSalvo) && !cartaoSalvo.equals(cartao)){
             cartaoSalvo.setAtivo(false);
             cartaoSalvo.setRemovido(true);
             this.update(cartaoSalvo);
@@ -69,11 +69,7 @@ public class CartaoService {
             List<Cartao> cartoes = cartaoRepository.findAllByUsuario(usuario);
 
             if(!cartoes.isEmpty()){
-                for(Cartao cartao : cartoes){
-                    if(cartao.getAtivo() == true && cartao.getRemovido() == false ){
-                        return Optional.of(cartao);
-                    }
-                }
+                return cartoes.stream().filter(c -> c.getAtivo() == true && c.getRemovido() == false).findFirst();
             }
         }
         return Optional.empty();

@@ -46,7 +46,7 @@ public class PedidoService {
 
     public boolean exists(Long idCliente){
         List<Pedido> pedidos = pedidoRepository.findAllByIdCliente(idCliente).orElse(null);
-        if (!Objects.isNull(pedidos)){
+        if (!Objects.isNull(pedidos) && !pedidos.isEmpty()){
             return pedidos.getLast().getStatus().equals(StatusPedido.CARRINHO);
         }
         return false;
@@ -78,13 +78,6 @@ public class PedidoService {
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
         if(!Objects.isNull(usuario)){
             adicionarProduto(usuario.getId(), idProduto);
-        }
-    }
-
-    public void removerProduto(String email, Long idProduto){
-        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
-        if(!Objects.isNull(usuario)){
-            removerProduto(usuario.getId(), idProduto);
         }
     }
 
@@ -121,6 +114,13 @@ public class PedidoService {
         } else {
             this.create(idCliente);
             this.adicionarProduto(idCliente, idProduto);
+        }
+    }
+
+    public void removerProduto(String email, Long idProduto){
+        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+        if(!Objects.isNull(usuario)){
+            removerProduto(usuario.getId(), idProduto);
         }
     }
 

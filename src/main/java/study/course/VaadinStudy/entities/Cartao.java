@@ -1,15 +1,14 @@
 package study.course.VaadinStudy.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.Objects;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Cartao {
@@ -17,12 +16,25 @@ public class Cartao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private Boolean ativo;
+    private Boolean removido;
     private String numero;
     private String nomeImpresso;
     private LocalDate validade;
     private String cvv;
 
-    @OneToOne
+    @ManyToOne
     private Usuario usuario;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Cartao cartao = (Cartao) o;
+        return Objects.equals(numero, cartao.numero);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(numero);
+    }
 }

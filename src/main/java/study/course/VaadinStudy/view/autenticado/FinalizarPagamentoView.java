@@ -129,6 +129,17 @@ public class FinalizarPagamentoView extends VerticalLayout {
         DatePicker validadeCartaoInput = new DatePicker("Start date");
         TextField codigoSegurancaInput = new TextField("Cod de segurança");
 
+        Optional<Cartao> cartaoSalvo = cartaoService.findAtivoByEmail(authenticationContext.getPrincipalName().orElse(null));
+
+        if(cartaoSalvo.isPresent() && cartaoSalvo.get().getAtivo() == true){
+            Cartao c1 = cartaoSalvo.get();
+            numeroCartaoInput.setValue(c1.getNumero());
+            nomeImpressoCartaoInput.setValue(c1.getNomeImpresso());
+            validadeCartaoInput.setValue(c1.getValidade());
+            codigoSegurancaInput.setValue(c1.getCvv());
+            usuarioService.find(authenticationContext.getPrincipalName().orElse(null));
+        }
+
         Select<String> parcelasSelect = new Select<>();
         parcelasSelect.setLabel("Parcelas");
         parcelasSelect.setItems(
@@ -148,6 +159,8 @@ public class FinalizarPagamentoView extends VerticalLayout {
         Button btnPagar = new Button("Realizar pagamento", event -> {
             Cartao cartao = new Cartao(
                     null,
+                    true,
+                    false,
                     numeroCartaoInput.getValue(),
                     nomeImpressoCartaoInput.getValue(),
                     validadeCartaoInput.getValue(),
@@ -156,7 +169,9 @@ public class FinalizarPagamentoView extends VerticalLayout {
             );
 
             if(isInputCartaoValido(cartao)){
-                salvarCartaoCliente(cartao);
+                if(cartaoSalvo.isEmpty() || !cartaoSalvo.get().equals(cartao)){
+                    salvarCartaoCliente(cartao);
+                }
                 pagarPedido(pedido);
             }
         });
@@ -279,6 +294,21 @@ public class FinalizarPagamentoView extends VerticalLayout {
     }
 
     private void salvarCartaoCliente(Cartao cartao) {
+        List<Cartao> cartoes = cartaoService.findAllByEmail(authenticationContext.getPrincipalName().orElse(null));
+        for (Cartao cartao1 : cartoes){
+            if (cartao1.equals(cartao)){
+                cartao1.setAtivo(true);
+                cartao1.setRemovido(false);
+                cartaoService.save(cartao1);
+                return;
+            }
+        }
+        Cartao cartaoSalvo = cartaoService.findAtivoByEmail(authenticationContext.getPrincipalName().orElse(null)).orElse(null);
+        if(cartaoSalvo != null && !cartaoSalvo.equals(cartao)){
+            cartaoSalvo.setAtivo(false);
+            cartaoSalvo.setRemovido(true);
+            cartaoService.update(cartaoSalvo);
+        }
         cartaoService.save(cartao);
     }
 
@@ -287,8 +317,8 @@ public class FinalizarPagamentoView extends VerticalLayout {
 
         if (cartao.getNumero() == null || cartao.getNumero().isBlank()) {
             mensagensErro.add("Número do cartão é obrigatório");
-        } else if (cartao.getNumero().length() < 13 || cartao.getNumero().length() > 19) {
-            mensagensErro.add("Número do cartão deve ter entre 13 e 19 dígitos");
+        } else if (cartao.getNumero().length() != 16) {
+            mensagensErro.add("Número do cartão deve ter 16 dígitos");
         }
 
         if (cartao.getNomeImpresso() == null || cartao.getNomeImpresso().isBlank()) {

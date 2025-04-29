@@ -95,10 +95,8 @@ public class PedidoService {
         ItemPedido itemPedido = pedido.getItens().stream().filter(item -> Objects.equals(item.getProduto().getSku(), produto.getSku())).findFirst().orElse(null);
 
         if (pedido.getItens().contains(itemPedido)) {
-            ItemPedido item = pedido.getItens().get(pedido.getItens().indexOf(itemPedido));
-            int quantidade = item.getQuantidade();
-            item.setQuantidade(quantidade + 1);
-            item.setSubTotal(item.getProduto().getPreco() * item.getQuantidade());
+            itemPedido.setQuantidade(itemPedido.getQuantidade() + 1);
+            itemPedido.setSubTotal(itemPedido.getProduto().getPreco() * itemPedido.getQuantidade());
             itemPedidoRepository.save(itemPedido);
         } else {
             ItemPedido novoItemPedido = new ItemPedido(null, produto, 1, produto.getPreco());
@@ -108,9 +106,7 @@ public class PedidoService {
 
         pedido.setTotal(0.0);
 
-        for (ItemPedido item : pedido.getItens()) {
-            pedido.setTotal(pedido.getTotal() + item.getSubTotal());
-        }
+        pedido.setTotal(pedido.getItens().stream().mapToDouble(ItemPedido::getSubTotal).sum());
         pedidoRepository.save(pedido);
 
     }
@@ -162,6 +158,7 @@ public class PedidoService {
         for (ItemPedido item : pedido.getItens()) {
             pedido.setTotal(pedido.getTotal() + item.getSubTotal());
         }
+
     }
 
     public void save(Pedido pedido) {

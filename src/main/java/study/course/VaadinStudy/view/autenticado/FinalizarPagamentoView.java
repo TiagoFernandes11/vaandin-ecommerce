@@ -170,7 +170,7 @@ public class FinalizarPagamentoView extends VerticalLayout {
 
             if(isInputCartaoValido(cartao)){
                 if(cartaoSalvo.isEmpty() || !cartaoSalvo.get().equals(cartao)){
-                    salvarCartaoCliente(cartao);
+                    cartaoService.salvarCartaoCliente(cartao, authenticationContext.getPrincipalName().get());
                 }
                 pagarPedido(pedido);
             }
@@ -293,25 +293,6 @@ public class FinalizarPagamentoView extends VerticalLayout {
         return menuConfirmacao;
     }
 
-    private void salvarCartaoCliente(Cartao cartao) {
-        List<Cartao> cartoes = cartaoService.findAllByEmail(authenticationContext.getPrincipalName().orElse(null));
-        for (Cartao cartao1 : cartoes){
-            if (cartao1.equals(cartao)){
-                cartao1.setAtivo(true);
-                cartao1.setRemovido(false);
-                cartaoService.save(cartao1);
-                return;
-            }
-        }
-        Cartao cartaoSalvo = cartaoService.findAtivoByEmail(authenticationContext.getPrincipalName().orElse(null)).orElse(null);
-        if(cartaoSalvo != null && !cartaoSalvo.equals(cartao)){
-            cartaoSalvo.setAtivo(false);
-            cartaoSalvo.setRemovido(true);
-            cartaoService.update(cartaoSalvo);
-        }
-        cartaoService.save(cartao);
-    }
-
     private boolean isInputCartaoValido(Cartao cartao) {
         List<String> mensagensErro = new ArrayList<>();
 
@@ -333,8 +314,8 @@ public class FinalizarPagamentoView extends VerticalLayout {
 
         if (cartao.getCvv() == null || cartao.getCvv().isBlank()) {
             mensagensErro.add("Código de segurança é obrigatório");
-        } else if (cartao.getCvv().length() < 3 || cartao.getCvv().length() > 4) {
-            mensagensErro.add("Código de segurança deve ter 3 ou 4 dígitos");
+        } else if (cartao.getCvv().length() != 3) {
+            mensagensErro.add("Código de segurança deve ter 3");
         }
 
         mensagensErro.forEach(Notification::show);

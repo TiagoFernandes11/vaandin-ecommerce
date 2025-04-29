@@ -19,10 +19,29 @@ public class CartaoService {
     @Autowired
     private UsuarioService usuarioService;
 
-    public void save(Cartao cartao){
+    private void salvarCartao(Cartao cartao){
         if(cartaoRepository.findByNumero(cartao.getNumero()).isEmpty()){
             cartaoRepository.save(cartao);
         }
+    }
+
+    public void salvarCartaoCliente(Cartao cartao, String email){
+        List<Cartao> cartoes = this.findAllByEmail(email);
+        for (Cartao cartao1 : cartoes){
+            if (cartao1.equals(cartao)){
+                cartao1.setAtivo(true);
+                cartao1.setRemovido(false);
+                this.salvarCartao(cartao1);
+                return;
+            }
+        }
+        Cartao cartaoSalvo = this.findAtivoByEmail(email).orElse(null);
+        if(cartaoSalvo != null && !cartaoSalvo.equals(cartao)){
+            cartaoSalvo.setAtivo(false);
+            cartaoSalvo.setRemovido(true);
+            this.update(cartaoSalvo);
+        }
+        this.salvarCartao(cartao);
     }
 
     public void update(Cartao cartao){

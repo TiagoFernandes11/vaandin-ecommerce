@@ -1,4 +1,6 @@
 package study.course.VaadinStudy.view.autenticado;
 
-public class CompraFinalizadaView {
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+public class CompraFinalizadaView extends VerticalLayout {
 }

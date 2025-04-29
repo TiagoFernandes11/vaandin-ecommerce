@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -18,16 +19,17 @@ import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import study.course.VaadinStudy.constants.StatusPedido;
+import study.course.VaadinStudy.entities.Cartao;
 import study.course.VaadinStudy.entities.ItemPedido;
 import study.course.VaadinStudy.entities.Pedido;
 import study.course.VaadinStudy.entities.Produto;
+import study.course.VaadinStudy.services.CartaoService;
 import study.course.VaadinStudy.services.PedidoService;
+import study.course.VaadinStudy.services.UsuarioService;
 import study.course.VaadinStudy.view.components.MainLayout;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @PageTitle("Finalização de pagamento")
 @RolesAllowed(value = {"ROLE_USER", "ROLE_ADMIN"})
@@ -35,11 +37,15 @@ import java.util.Objects;
 public class FinalizarPagamentoView extends VerticalLayout {
 
     private final AuthenticationContext authenticationContext;
+    private final UsuarioService usuarioService;
     private final PedidoService pedidoService;
+    private final CartaoService cartaoService;
 
-    public FinalizarPagamentoView(AuthenticationContext authenticationContext, PedidoService pedidoService) {
+    public FinalizarPagamentoView(AuthenticationContext authenticationContext, UsuarioService usuarioService, PedidoService pedidoService, CartaoService cartaoService) {
         this.authenticationContext = authenticationContext;
+        this.usuarioService = usuarioService;
         this.pedidoService = pedidoService;
+        this.cartaoService = cartaoService;
 
         H2 tituloH2 = new H2("Pagamento");
 
@@ -117,11 +123,42 @@ public class FinalizarPagamentoView extends VerticalLayout {
 
         numeroENome.add(numeroCartaoInput, nomeImpressoCartaoInput);
 
-        HorizontalLayout validadeCVVeParcelas = getValidadeCVVeParcelasIputs(pedido);
+        HorizontalLayout validadeCVVeParcelas = new HorizontalLayout();
+        validadeCVVeParcelas.addClassNames(LumoUtility.Width.FULL);
+
+        DatePicker validadeCartaoInput = new DatePicker("Start date");
+        TextField codigoSegurancaInput = new TextField("Cod de segurança");
+
+        Select<String> parcelasSelect = new Select<>();
+        parcelasSelect.setLabel("Parcelas");
+        parcelasSelect.setItems(
+                "1x de R$%.2f".formatted(pedido.getTotal()),
+                "2x de R$%.2f".formatted(pedido.getTotal() / 2),
+                "3x de R$%.2f".formatted(pedido.getTotal() / 3)
+        );
+        parcelasSelect.setValue("1x de R$%.2f".formatted(pedido.getTotal()));
+
+        validadeCartaoInput.addClassNames(LumoUtility.Width.FULL);
+        codigoSegurancaInput.addClassNames(LumoUtility.Width.FULL);
+        parcelasSelect.addClassNames(LumoUtility.Width.FULL);
+
+        validadeCVVeParcelas.add(validadeCartaoInput, codigoSegurancaInput,parcelasSelect);
 
         HorizontalLayout btnPagarContainer = new HorizontalLayout();
         Button btnPagar = new Button("Realizar pagamento", event -> {
+            Cartao cartao = new Cartao(
+                    null,
+                    numeroCartaoInput.getValue(),
+                    nomeImpressoCartaoInput.getValue(),
+                    validadeCartaoInput.getValue(),
+                    codigoSegurancaInput.getValue(),
+                    usuarioService.find(authenticationContext.getPrincipalName().orElse(null))
+            );
 
+            if(isInputCartaoValido(cartao)){
+                salvarCartaoCliente(cartao);
+                pagarPedido(pedido);
+            }
         });
         btnPagarContainer.addClassNames(LumoUtility.Width.FULL, LumoUtility.JustifyContent.END);
         btnPagarContainer.add(btnPagar);
@@ -131,30 +168,6 @@ public class FinalizarPagamentoView extends VerticalLayout {
 
         tab.add(tituloTab, numeroENome, validadeCVVeParcelas, btnPagarContainer);
         return tab;
-    }
-
-    private static HorizontalLayout getValidadeCVVeParcelasIputs(Pedido pedido) {
-        HorizontalLayout validadeCVVeParcelas = new HorizontalLayout();
-        validadeCVVeParcelas.addClassNames(LumoUtility.Width.FULL);
-
-        DatePicker validadeCartaoInput = new DatePicker("Start date");
-        TextField codigoSegurancaoInput = new TextField("Cod de segurança");
-
-        Select<String> parcelasSelect = new Select<>();
-        parcelasSelect.setLabel("Parcelas");
-        parcelasSelect.setItems(
-                "1x de R$%.2f".formatted(pedido.getTotal()),
-                "2x de R$%.2f".formatted(pedido.getTotal() / 2),
-                "3x de R$%.2f".formatted(pedido.getTotal() / 3)
-                );
-        parcelasSelect.setValue("1x de R$%.2f".formatted(pedido.getTotal()));
-
-        validadeCartaoInput.addClassNames(LumoUtility.Width.FULL);
-        codigoSegurancaoInput.addClassNames(LumoUtility.Width.FULL);
-        parcelasSelect.addClassNames(LumoUtility.Width.FULL);
-
-        validadeCVVeParcelas.add(validadeCartaoInput, codigoSegurancaoInput,parcelasSelect);
-        return validadeCVVeParcelas;
     }
 
     private VerticalLayout montarConteudoTabPix() {
@@ -191,7 +204,7 @@ public class FinalizarPagamentoView extends VerticalLayout {
         instrucao.getStyle().set("font-style", "italic");
 
         Button btnPagar = new Button("Realizar pagamento", event -> {
-
+            pagarPedido(pedido);
         });
 
         HorizontalLayout btnPagarContainer = new HorizontalLayout(btnPagar);
@@ -205,6 +218,7 @@ public class FinalizarPagamentoView extends VerticalLayout {
 
 
     private VerticalLayout montarConteudoTabBoleto() {
+        Pedido pedido = pedidoService.findUltimoPedido(authenticationContext.getPrincipalName().orElse(null), StatusPedido.PENDENTE);
         VerticalLayout tab = new VerticalLayout();
         tab.addClassNames(LumoUtility.Width.FULL);
 
@@ -222,7 +236,7 @@ public class FinalizarPagamentoView extends VerticalLayout {
         baixarBoleto.getStyle().set("margin-bottom", "var(--lumo-space-m)");
 
         Button btnPagar = new Button("Realizar pagamento", event -> {
-
+            pagarPedido(pedido);
         });
         HorizontalLayout btnPagarContainer = new HorizontalLayout(btnPagar);
         btnPagarContainer.setWidthFull();
@@ -264,6 +278,39 @@ public class FinalizarPagamentoView extends VerticalLayout {
         return menuConfirmacao;
     }
 
+    private void salvarCartaoCliente(Cartao cartao) {
+        cartaoService.save(cartao);
+    }
+
+    private boolean isInputCartaoValido(Cartao cartao) {
+        List<String> mensagensErro = new ArrayList<>();
+
+        if (cartao.getNumero() == null || cartao.getNumero().isBlank()) {
+            mensagensErro.add("Número do cartão é obrigatório");
+        } else if (cartao.getNumero().length() < 13 || cartao.getNumero().length() > 19) {
+            mensagensErro.add("Número do cartão deve ter entre 13 e 19 dígitos");
+        }
+
+        if (cartao.getNomeImpresso() == null || cartao.getNomeImpresso().isBlank()) {
+            mensagensErro.add("Nome impresso no cartão é obrigatório");
+        }
+
+        if (cartao.getValidade() == null) {
+            mensagensErro.add("Data de validade é obrigatória");
+        } else if (cartao.getValidade().isBefore(java.time.LocalDate.now())) {
+            mensagensErro.add("A validade do cartão deve ser uma data futura");
+        }
+
+        if (cartao.getCvv() == null || cartao.getCvv().isBlank()) {
+            mensagensErro.add("Código de segurança é obrigatório");
+        } else if (cartao.getCvv().length() < 3 || cartao.getCvv().length() > 4) {
+            mensagensErro.add("Código de segurança deve ter 3 ou 4 dígitos");
+        }
+
+        mensagensErro.forEach(Notification::show);
+        return mensagensErro.isEmpty();
+    }
+
     private static HorizontalLayout getLinhaProduto(ItemPedido itemPedido) {
         Produto produto = itemPedido.getProduto();
 
@@ -278,5 +325,10 @@ public class FinalizarPagamentoView extends VerticalLayout {
 
         linhaProduto.add(nome, preco, qtd, subtotal);
         return linhaProduto;
+    }
+
+    private void pagarPedido(Pedido pedido){
+        pedido.setStatus(StatusPedido.PAGO);
+        UI.getCurrent().navigate(CompraFinalizadaView.class);
     }
 }

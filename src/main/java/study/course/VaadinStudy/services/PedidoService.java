@@ -29,54 +29,56 @@ public class PedidoService {
     @Autowired
     UsuarioRepository usuarioRepository;
 
-    public void create(Long idCliente){
+    public void create(Long idCliente) {
         List<ItemPedido> produtos = new ArrayList<>();
         Pedido pedido = new Pedido(null, idCliente, StatusPedido.CARRINHO, new Date(), false,
                 null, null, null, null, produtos, 0.00);
         pedidoRepository.save(pedido);
     }
 
-    public boolean exists (String email){
+    public boolean exists(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
-        if(!Objects.isNull(usuario)){
+        if (!Objects.isNull(usuario)) {
             return exists(usuario.getId());
         }
         return false;
     }
 
-    public boolean exists(Long idCliente){
+    public boolean exists(Long idCliente) {
         List<Pedido> pedidos = pedidoRepository.findAllByIdCliente(idCliente).orElse(null);
-        if (!Objects.isNull(pedidos) && !pedidos.isEmpty()){
+        if (!Objects.isNull(pedidos) && !pedidos.isEmpty()) {
             return pedidos.getLast().getStatus().equals(StatusPedido.CARRINHO);
         }
         return false;
     }
 
-    public Pedido findUltimoPedido(String emailCliente, String statusPedido){
+    public Pedido findUltimoPedido(String emailCliente, String statusPedido) {
         Usuario usuario = usuarioRepository.findByEmail(emailCliente).orElse(null);
-        if(!Objects.isNull(usuario)){
+        if (!Objects.isNull(usuario)) {
             return findUltimoPedido(usuario.getId(), statusPedido);
         }
         return null;
     }
 
-    public Pedido findUltimoPedido(Long idCliente, String statusPedido){
+    public Pedido findUltimoPedido(Long idCliente, String statusPedido) {
         List<Pedido> pedidos = pedidoRepository.findAllByIdCliente(idCliente).orElse(null);
         Pedido ultimoCarrinho = null;
-        if(Objects.nonNull(pedidos) && !pedidos.isEmpty()){
+        if (Objects.nonNull(pedidos) && !pedidos.isEmpty()) {
             ultimoCarrinho = pedidos.getLast();
         }
-        if(!Objects.isNull(ultimoCarrinho) && ultimoCarrinho.getStatus().equals(statusPedido)){
+        if (!Objects.isNull(ultimoCarrinho) && ultimoCarrinho.getStatus().equals(statusPedido)) {
             return ultimoCarrinho;
         }
         return null;
     }
 
-    public List<Pedido> findAll(){return pedidoRepository.findAll();}
+    public List<Pedido> findAll() {
+        return pedidoRepository.findAll();
+    }
 
-    public void adicionarProduto(String email, Long idProduto){
+    public void adicionarProduto(String email, Long idProduto) {
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
-        if(!Objects.isNull(usuario)){
+        if (!Objects.isNull(usuario)) {
             adicionarProduto(usuario.getId(), idProduto);
         }
     }
@@ -84,86 +86,80 @@ public class PedidoService {
     public void adicionarProduto(Long idCliente, Long idProduto) {
         Pedido pedido = findUltimoPedido(idCliente, StatusPedido.CARRINHO);
         Produto produto = produtoRepository.findById(idProduto).orElse(null);
-        ItemPedido itemPedido = null;
 
-        if(!Objects.isNull(pedido) && !Objects.isNull(produto)){
-            for(ItemPedido item : pedido.getItens()){
-                if(Objects.equals(item.getProduto().getSku(), produto.getSku())){
-                    itemPedido = item;
-                }
-            }
-
-            if(pedido.getItens().contains(itemPedido)){
-                ItemPedido item = pedido.getItens().get(pedido.getItens().indexOf(itemPedido));
-                int quantidade = item.getQuantidade();
-                item.setQuantidade(quantidade + 1);
-                item.setSubTotal(item.getProduto().getPreco() * item.getQuantidade());
-                itemPedidoRepository.save(itemPedido);
-            } else {
-                ItemPedido novoItemPedido = new ItemPedido(null, produto, 1, produto.getPreco());
-                itemPedidoRepository.save(novoItemPedido);
-                pedido.getItens().add(novoItemPedido);
-            }
-
-            pedido.setTotal(0.0);
-
-            for(ItemPedido item : pedido.getItens()){
-                pedido.setTotal(pedido.getTotal() + item.getSubTotal());
-            }
-            pedidoRepository.save(pedido);
-        } else {
+        if (Objects.isNull(pedido) || Objects.isNull(produto)) {
             this.create(idCliente);
             this.adicionarProduto(idCliente, idProduto);
         }
+
+        ItemPedido itemPedido = pedido.getItens().stream().filter(item -> Objects.equals(item.getProduto().getSku(), produto.getSku())).findFirst().orElse(null);
+
+        if (pedido.getItens().contains(itemPedido)) {
+            ItemPedido item = pedido.getItens().get(pedido.getItens().indexOf(itemPedido));
+            int quantidade = item.getQuantidade();
+            item.setQuantidade(quantidade + 1);
+            item.setSubTotal(item.getProduto().getPreco() * item.getQuantidade());
+            itemPedidoRepository.save(itemPedido);
+        } else {
+            ItemPedido novoItemPedido = new ItemPedido(null, produto, 1, produto.getPreco());
+            itemPedidoRepository.save(novoItemPedido);
+            pedido.getItens().add(novoItemPedido);
+        }
+
+        pedido.setTotal(0.0);
+
+        for (ItemPedido item : pedido.getItens()) {
+            pedido.setTotal(pedido.getTotal() + item.getSubTotal());
+        }
+        pedidoRepository.save(pedido);
+
     }
 
-    public void removerProduto(String email, Long idProduto){
+    public void removerProduto(String email, Long idProduto) {
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
-        if(!Objects.isNull(usuario)){
+        if (!Objects.isNull(usuario)) {
             removerProduto(usuario.getId(), idProduto);
         }
     }
 
-    private void removerProduto(Long idCliente, Long idProduto){
+    private void removerProduto(Long idCliente, Long idProduto) {
         Pedido pedido = findUltimoPedido(idCliente, StatusPedido.CARRINHO);
+        if (Objects.isNull(pedido)) return;
+
         Produto produto = produtoRepository.findById(idProduto).orElse(null);
-        ItemPedido itemPedido = null;
+        if (Objects.isNull(produto)) return;
 
-        if(!Objects.isNull(pedido) && !Objects.isNull(produto)){
-            for(ItemPedido item : pedido.getItens()){
-                if(Objects.equals(item.getProduto().getSku(), produto.getSku())){
-                    itemPedido = item;
-                }
-            }
+        ItemPedido itemPedido = pedido.getItens().stream().filter(item -> Objects.equals(item.getProduto().getSku(), produto.getSku())).findFirst().orElse(null);
 
-            if(pedido.getItens().contains(itemPedido)){
-                ItemPedido item = pedido.getItens().get(pedido.getItens().indexOf(itemPedido));
-                if(item.getQuantidade() <= 1){
-                    pedido.getItens().remove(item);
-                    pedidoRepository.save(pedido);
-                    if(pedido.getItens().isEmpty()){
-                        pedidoRepository.delete(pedido);
-                    }
-                    calcularTotalPedido(pedido);
-                    pedidoRepository.save(pedido);
-                    itemPedidoRepository.delete(item);
-                    return;
-                } else{
-                    int quantidade = item.getQuantidade();
-                    item.setQuantidade(quantidade - 1);
-                    item.setSubTotal(item.getProduto().getPreco() * item.getQuantidade());
-                    itemPedidoRepository.save(itemPedido);
-                }
-            }
-            calcularTotalPedido(pedido);
+        if (Objects.isNull(itemPedido)) return;
+
+        if (itemPedido.getQuantidade() <= 1) {
+            pedido.getItens().remove(itemPedido);
             pedidoRepository.save(pedido);
+
+            if (pedido.getItens().isEmpty()) {
+                pedidoRepository.delete(pedido);
+            }
+
+            calcularTotalPedido(pedido);
+            itemPedidoRepository.delete(itemPedido);
+            return;
+        } else {
+            int quantidade = itemPedido.getQuantidade();
+            itemPedido.setQuantidade(quantidade - 1);
+            itemPedido.setSubTotal(itemPedido.getProduto().getPreco() * itemPedido.getQuantidade());
+            itemPedidoRepository.save(itemPedido);
         }
+
+        calcularTotalPedido(pedido);
+        pedidoRepository.save(pedido);
+
     }
 
-    private void calcularTotalPedido(Pedido pedido){
+    private void calcularTotalPedido(Pedido pedido) {
         pedido.setTotal(0.0);
 
-        for(ItemPedido item : pedido.getItens()){
+        for (ItemPedido item : pedido.getItens()) {
             pedido.setTotal(pedido.getTotal() + item.getSubTotal());
         }
     }

@@ -9,11 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemPedido {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class ItemPedido extends BaseEntity{
 
     @JoinColumn(name = "idproduto")
     @ManyToOne(fetch = FetchType.EAGER)

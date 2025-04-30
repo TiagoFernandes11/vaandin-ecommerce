@@ -1,6 +1,7 @@
 package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.entities.Cartao;
 import study.course.VaadinStudy.entities.Usuario;
@@ -11,13 +12,17 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public class CartaoService {
+public class CartaoService extends BaseService<Cartao>{
 
     @Autowired
     private CartaoRepository cartaoRepository;
 
     @Autowired
     private UsuarioService usuarioService;
+
+    public CartaoService(CartaoRepository cartaoRepository) {
+        super(cartaoRepository);
+    }
 
     private void salvarCartao(Cartao cartao){
         if(cartaoRepository.findByNumero(cartao.getNumero()).isEmpty()){

@@ -1,6 +1,7 @@
 package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.constants.StatusPedido;
 import study.course.VaadinStudy.entities.Pedido;
@@ -15,7 +16,7 @@ import study.course.VaadinStudy.repository.UsuarioRepository;
 import java.util.*;
 
 @Service
-public class PedidoService {
+public class PedidoService extends BaseService<Pedido>{
 
     @Autowired
     private ItemPedidoRepository itemPedidoRepository;
@@ -27,11 +28,15 @@ public class PedidoService {
     private ProdutoRepository produtoRepository;
 
     @Autowired
-    UsuarioRepository usuarioRepository;
+    private UsuarioRepository usuarioRepository;
+
+    public PedidoService(PedidoRepository pedidoRepository) {
+        super(pedidoRepository);
+    }
 
     public void create(Long idCliente) {
         List<ItemPedido> produtos = new ArrayList<>();
-        Pedido pedido = new Pedido(null, idCliente, StatusPedido.CARRINHO, new Date(), false,
+        Pedido pedido = new Pedido(idCliente, StatusPedido.CARRINHO, new Date(), false,
                 null, null, null, null, produtos, 0.00);
         pedidoRepository.save(pedido);
     }
@@ -39,12 +44,12 @@ public class PedidoService {
     public boolean exists(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
         if (!Objects.isNull(usuario)) {
-            return exists(usuario.getId());
+            return existsByIdCliente(usuario.getId());
         }
         return false;
     }
 
-    public boolean exists(Long idCliente) {
+    public boolean existsByIdCliente(Long idCliente) {
         List<Pedido> pedidos = pedidoRepository.findAllByIdCliente(idCliente).orElse(null);
         if (Objects.nonNull(pedidos) && !pedidos.isEmpty()) {
             return pedidos.getLast().getStatus().equals(StatusPedido.CARRINHO);
@@ -99,7 +104,7 @@ public class PedidoService {
             itemPedido.setSubTotal(itemPedido.getProduto().getPreco() * itemPedido.getQuantidade());
             itemPedidoRepository.save(itemPedido);
         } else {
-            ItemPedido novoItemPedido = new ItemPedido(null, produto, 1, produto.getPreco());
+            ItemPedido novoItemPedido = new ItemPedido(produto, 1, produto.getPreco());
             itemPedidoRepository.save(novoItemPedido);
             pedido.getItens().add(novoItemPedido);
         }
@@ -157,9 +162,5 @@ public class PedidoService {
             pedido.setTotal(pedido.getTotal() + item.getSubTotal());
         }
 
-    }
-
-    public void save(Pedido pedido) {
-        pedidoRepository.save(pedido);
     }
 }

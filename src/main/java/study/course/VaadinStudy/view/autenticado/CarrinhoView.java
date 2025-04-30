@@ -138,7 +138,6 @@ public class CarrinhoView extends VerticalLayout {
             Pedido pedido = pedidoService.findUltimoPedido(authenticationContext.getPrincipalName().orElse(null), StatusPedido.CARRINHO);
 
             Endereco enderecoPedido = new Endereco(
-                    null,
                     inputCep.getValue(),
                     rua.getValue(),
                     Long.parseLong(numero.getValue().isBlank() ? "0" : numero.getValue()),
@@ -222,6 +221,6 @@ public class CarrinhoView extends VerticalLayout {
 
 
     private Endereco getEnderecoPeloCep(String cep){
-        return new Endereco(null, "06969-069", "Rua teste", 69L, "São Teste", "ET", "Bairro teste");
+        return new Endereco("06969-069", "Rua teste", 69L, "São Teste", "ET", "Bairro teste");
     }
 }

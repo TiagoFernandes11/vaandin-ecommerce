@@ -1,6 +1,7 @@
 package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.entities.Endereco;
 import study.course.VaadinStudy.repository.EnderecoRepository;
@@ -8,13 +9,13 @@ import study.course.VaadinStudy.repository.EnderecoRepository;
 import java.util.Optional;
 
 @Service
-public class EnderecoService {
+public class EnderecoService extends BaseService<Endereco>{
 
     @Autowired
     private EnderecoRepository enderecoRepository;
 
-    public void save(Endereco enderecoPedido) {
-        enderecoRepository.save(enderecoPedido);
+    public EnderecoService(EnderecoRepository enderecoRepository) {
+        super(enderecoRepository);
     }
 
     public boolean exists(Endereco endereco){

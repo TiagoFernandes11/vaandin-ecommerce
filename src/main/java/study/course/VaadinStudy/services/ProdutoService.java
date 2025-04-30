@@ -1,6 +1,7 @@
 package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.entities.Categoria;
 import study.course.VaadinStudy.entities.Produto;
@@ -12,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public class ProdutoService {
+public class ProdutoService extends BaseService<Produto>{
 
     @Autowired
     private ProdutoRepository produtoRepository;
@@ -20,12 +21,8 @@ public class ProdutoService {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
-    public List<Produto> findAll() {
-        return produtoRepository.findAll();
-    }
-
-    public Produto find(long idProduto) {
-        return produtoRepository.findById(idProduto).orElse(null);
+    public ProdutoService(ProdutoRepository produtoRepository) {
+        super(produtoRepository);
     }
 
     public boolean create(Produto produto) {
@@ -39,10 +36,6 @@ public class ProdutoService {
         }
         produtoRepository.save(produto);
         return true;
-    }
-
-    public void delete(Produto produto) {
-        produtoRepository.delete(produto);
     }
 
     public void adicionarACategoria(String nomeCategoria, long idProduto) {

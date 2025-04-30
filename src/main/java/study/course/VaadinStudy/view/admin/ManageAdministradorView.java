@@ -101,7 +101,8 @@ public class ManageAdministradorView extends VerticalLayout {
                 }
             } else{
                 if(validarInput(usuario)){
-                    if(usuarioService.update(usuario)){
+                    if(usuarioService.isUpdatable(usuario)){
+                        usuarioService.update(usuario);
                         Notification.show("Administrador id: " + usuario.getId() + " atualizado");
                         atualizarLista();
                         dialog.close();

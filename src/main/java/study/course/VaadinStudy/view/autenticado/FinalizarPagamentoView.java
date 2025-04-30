@@ -158,7 +158,6 @@ public class FinalizarPagamentoView extends VerticalLayout {
         HorizontalLayout btnPagarContainer = new HorizontalLayout();
         Button btnPagar = new Button("Realizar pagamento", event -> {
             Cartao cartao = new Cartao(
-                    null,
                     true,
                     false,
                     numeroCartaoInput.getValue(),

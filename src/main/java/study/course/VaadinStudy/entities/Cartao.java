@@ -11,11 +11,8 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Cartao {
+public class Cartao extends BaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     private Boolean ativo;
     private Boolean removido;
     private String numero;

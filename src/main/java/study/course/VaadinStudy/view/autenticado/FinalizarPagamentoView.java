@@ -340,6 +340,7 @@ public class FinalizarPagamentoView extends VerticalLayout {
 
     private void pagarPedido(Pedido pedido){
         pedido.setStatus(StatusPedido.PAGO);
+        pedidoService.save(pedido);
         UI.getCurrent().navigate(CompraFinalizadaView.class);
     }
 }

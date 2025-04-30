@@ -23,11 +23,6 @@ public class EnderecoService extends BaseService<Endereco> {
     public EnderecoService(EnderecoRepository enderecoRepository) {
         super(enderecoRepository);
     }
-
-    public boolean exists(Endereco endereco){
-        Optional<Endereco> endereco1 = enderecoRepository.findByLogradouroAndNumero(endereco.getLogradouro(), endereco.getNumero());
-        return endereco1.isPresent();
-    }
     
     public Endereco find(String logradouro, Long numero){
         Optional<Endereco> endereco = enderecoRepository.findByLogradouroAndNumero(logradouro, numero);

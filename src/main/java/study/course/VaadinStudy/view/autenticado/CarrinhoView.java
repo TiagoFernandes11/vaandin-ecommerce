@@ -1,5 +1,6 @@
 package study.course.VaadinStudy.view.autenticado;
 
+import com.nimbusds.jose.shaded.gson.Gson;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
@@ -23,6 +24,12 @@ import study.course.VaadinStudy.view.components.MainLayout;
 import study.course.VaadinStudy.view.components.Vitrine;
 import study.course.VaadinStudy.view.publico.MainView;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
@@ -118,17 +125,34 @@ public class CarrinhoView extends VerticalLayout {
         H4 cepTitulo = new H4("Seu cep: ");
         TextField inputCep = new TextField();
         Button btnBuscaCep = new Button("Buscar", event-> {
+            rua.setValue("");
+            numero.setValue("");
+            estado.setValue("");
+            cidade.setValue("");
+            bairro.setValue("");
+
             String cep = inputCep.getValue();
             Endereco enderecoAPartirDoCep = getEnderecoPeloCep(cep);
 
             rua.setValue(enderecoAPartirDoCep.getLogradouro());
-            numero.setValue(Long.toString(enderecoAPartirDoCep.getNumero()));
+            numero.setValue("");
             estado.setValue(enderecoAPartirDoCep.getEstado());
             cidade.setValue(enderecoAPartirDoCep.getCidade());
             bairro.setValue(enderecoAPartirDoCep.getBairro());
         });
 
         buscaCep.add(inputCep, btnBuscaCep);
+
+        Endereco enderecoSalvo = enderecoService.findAtivoByEmail(authenticationContext.getPrincipalName().orElse(null));
+
+        if(Objects.nonNull(enderecoSalvo)){
+            inputCep.setValue(enderecoSalvo.getCep());
+            rua.setValue(enderecoSalvo.getLogradouro());
+            numero.setValue(enderecoSalvo.getNumero().toString());
+            estado.setValue(enderecoSalvo.getEstado());
+            cidade.setValue(enderecoSalvo.getCidade());
+            bairro.setValue(enderecoSalvo.getBairro());
+        }
 
         H4 entregaTitulo = new H4("Forma de entrega: ");
 
@@ -217,6 +241,33 @@ public class CarrinhoView extends VerticalLayout {
 
 
     private Endereco getEnderecoPeloCep(String cep){
-        return new Endereco(null, null, "06969-069", "Rua teste", 69L, "São Teste", "ET", "Bairro teste", null);
+        String urlParaChamada = "http://viacep.com.br/ws/" + cep + "/json";
+
+        try{
+            URL url = new URL(urlParaChamada);
+            HttpURLConnection conexao = (HttpURLConnection) url.openConnection();
+
+            if (conexao.getResponseCode() != 200)
+                throw new RuntimeException("HTTP error code : " + conexao.getResponseCode());
+
+            BufferedReader resposta = new BufferedReader(new InputStreamReader((conexao.getInputStream())));
+            String linha;
+            StringBuilder jsonEmString = new StringBuilder();
+
+            while ((linha = resposta.readLine()) != null) {
+                jsonEmString.append(linha);
+            }
+
+            Gson gson = new Gson();
+            Endereco endereco = gson.fromJson(jsonEmString.toString(), Endereco.class);
+
+            return endereco;
+
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+
+        }
+        return new Endereco(null, null, null, null, null, null, null, null, null);
     }
 }

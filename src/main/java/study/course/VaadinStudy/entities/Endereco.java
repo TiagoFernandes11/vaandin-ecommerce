@@ -1,5 +1,6 @@
 package study.course.VaadinStudy.entities;
 
+import com.nimbusds.jose.shaded.gson.annotations.SerializedName;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,8 +17,13 @@ public class Endereco extends BaseEntity{
     private String cep;
     private String logradouro;
     private Long numero;
+
+    @SerializedName(value = "localidade")
     private String cidade;
+
+    @SerializedName(value = "uf")
     private String estado;
+
     private String bairro;
 
     @ManyToOne

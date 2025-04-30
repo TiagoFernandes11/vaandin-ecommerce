@@ -214,19 +214,9 @@ public class CarrinhoView extends VerticalLayout {
     }
 
     private List<Produto> getProdutosMiniVitrine() {
-        List<Produto> listaProdutos = produtoService.findAll().stream().filter(produto -> {
-            List<ItemPedido> itens= itemPedidoService.findAllItems(authenticationContext.getPrincipalName().orElse(null));
-            if(!Objects.isNull(itens)){
-                for(ItemPedido item : itens){
-                    if(Objects.equals(item.getProduto().getSku(), produto.getSku())){
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }).toList();
-
-        return listaProdutos.stream().limit(3).toList();
+        List<ItemPedido> itensPedido = itemPedidoService.findAllItems(authenticationContext.getPrincipalName().orElse(null));
+        List<Integer> skus = itensPedido.stream().map(item -> item.getProduto().getSku()).toList();
+        return produtoService.findAll().stream().filter(produto -> !skus.contains(produto.getSku())).limit(3).toList();
     }
 
     private boolean preenchimentoEnderecoValido(Endereco endereco) {
@@ -251,23 +241,21 @@ public class CarrinhoView extends VerticalLayout {
                 throw new RuntimeException("HTTP error code : " + conexao.getResponseCode());
 
             BufferedReader resposta = new BufferedReader(new InputStreamReader((conexao.getInputStream())));
-            String linha;
             StringBuilder jsonEmString = new StringBuilder();
+            String linha;
 
             while ((linha = resposta.readLine()) != null) {
                 jsonEmString.append(linha);
             }
 
             Gson gson = new Gson();
-            Endereco endereco = gson.fromJson(jsonEmString.toString(), Endereco.class);
 
-            return endereco;
+            return gson.fromJson(jsonEmString.toString(), Endereco.class);
 
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Erro na url de busca", e);
         } catch (IOException e) {
-
+            throw new RuntimeException("Erro ao buscar endereço pelo CEP", e);
         }
-        return new Endereco(null, null, null, null, null, null, null, null, null);
     }
 }

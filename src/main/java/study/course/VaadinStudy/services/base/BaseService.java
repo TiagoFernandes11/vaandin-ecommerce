@@ -1,4 +1,4 @@
-package study.course.VaadinStudy.services;
+package study.course.VaadinStudy.services.base;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

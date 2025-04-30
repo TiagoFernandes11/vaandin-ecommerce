@@ -1,4 +1,4 @@
-package study.course.VaadinStudy.services;
+package study.course.VaadinStudy.services.base;
 
 import java.util.List;
 

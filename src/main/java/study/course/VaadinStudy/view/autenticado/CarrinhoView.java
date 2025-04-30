@@ -138,24 +138,20 @@ public class CarrinhoView extends VerticalLayout {
             Pedido pedido = pedidoService.findUltimoPedido(authenticationContext.getPrincipalName().orElse(null), StatusPedido.CARRINHO);
 
             Endereco enderecoPedido = new Endereco(
+                    true,
+                    false,
                     inputCep.getValue(),
                     rua.getValue(),
                     Long.parseLong(numero.getValue().isBlank() ? "0" : numero.getValue()),
                     cidade.getValue(),
                     estado.getValue(),
-                    bairro.getValue()
+                    bairro.getValue(),
+                    usuario
             );
 
             if(preenchimentoEnderecoValido(enderecoPedido)){
                 if(Objects.nonNull(usuario) && Objects.nonNull(pedido)){
-                    Endereco endereco1 = enderecoService.find(enderecoPedido.getLogradouro(), enderecoPedido.getNumero());
-
-                    if(!enderecoService.exists(enderecoPedido)){
-                        enderecoService.save(enderecoPedido);
-                        pedido.setEnderecoEntrega(enderecoPedido);
-                    } else {
-                        pedido.setEnderecoEntrega(endereco1);
-                    }
+                    enderecoService.salvarEnderecoCliente(enderecoPedido, usuario.getEmail());
 
                     pedido.setTipoDeEntrega(listBox.getValue());
                     pedido.setStatus(StatusPedido.PENDENTE);
@@ -221,6 +217,6 @@ public class CarrinhoView extends VerticalLayout {
 
 
     private Endereco getEnderecoPeloCep(String cep){
-        return new Endereco("06969-069", "Rua teste", 69L, "São Teste", "ET", "Bairro teste");
+        return new Endereco(null, null, "06969-069", "Rua teste", 69L, "São Teste", "ET", "Bairro teste", null);
     }
 }

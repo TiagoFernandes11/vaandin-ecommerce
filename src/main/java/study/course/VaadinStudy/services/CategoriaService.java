@@ -1,21 +1,18 @@
 package study.course.VaadinStudy.services;
 
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.entities.Categoria;
 import study.course.VaadinStudy.entities.Produto;
 import study.course.VaadinStudy.repository.CategoriaRepository;
 import study.course.VaadinStudy.repository.ProdutoRepository;
+import study.course.VaadinStudy.services.base.BaseService;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public class CategoriaService extends BaseService<Categoria>{
+public class CategoriaService extends BaseService<Categoria> {
 
     @Autowired
     private CategoriaRepository categoriaRepository;
@@ -34,7 +31,7 @@ public class CategoriaService extends BaseService<Categoria>{
     public boolean create(Categoria categoria){
         Optional<Categoria> categoriaFromDb = categoriaRepository.findByNome(categoria.getNome());
         if(categoriaFromDb.isEmpty()){
-            categoriaRepository.save(categoria);
+            save(categoria);
             return true;
         }
         return false;
@@ -49,7 +46,7 @@ public class CategoriaService extends BaseService<Categoria>{
             return false;
         } else {
             categoria.getProdutos().add(produto);
-            categoriaRepository.save(categoria);
+            save(categoria);
             return true;
         }
     }
@@ -60,7 +57,7 @@ public class CategoriaService extends BaseService<Categoria>{
         if(!Objects.isNull(categoria) && !Objects.isNull(produto)){
             if(categoria.getProdutos().contains(produto)){
                 categoria.getProdutos().remove(produto);
-                categoriaRepository.save(categoria);
+                save(categoria);
                 return true;
             } else {
                 return false;

@@ -1,7 +1,6 @@
 package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.constants.StatusPedido;
 import study.course.VaadinStudy.entities.Pedido;
@@ -12,11 +11,12 @@ import study.course.VaadinStudy.repository.PedidoRepository;
 import study.course.VaadinStudy.repository.ItemPedidoRepository;
 import study.course.VaadinStudy.repository.ProdutoRepository;
 import study.course.VaadinStudy.repository.UsuarioRepository;
+import study.course.VaadinStudy.services.base.BaseService;
 
 import java.util.*;
 
 @Service
-public class PedidoService extends BaseService<Pedido>{
+public class PedidoService extends BaseService<Pedido> {
 
     @Autowired
     private ItemPedidoRepository itemPedidoRepository;
@@ -110,7 +110,7 @@ public class PedidoService extends BaseService<Pedido>{
         }
 
         pedido.setTotal(pedido.getItens().stream().mapToDouble(ItemPedido::getSubTotal).sum());
-        pedidoRepository.save(pedido);
+        save(pedido);
 
     }
 
@@ -137,7 +137,7 @@ public class PedidoService extends BaseService<Pedido>{
             pedidoRepository.save(pedido);
 
             if (pedido.getItens().isEmpty()) {
-                pedidoRepository.delete(pedido);
+                delete(pedido);
             }
 
             calcularTotalPedido(pedido);
@@ -151,7 +151,7 @@ public class PedidoService extends BaseService<Pedido>{
         }
 
         calcularTotalPedido(pedido);
-        pedidoRepository.save(pedido);
+        save(pedido);
 
     }
 

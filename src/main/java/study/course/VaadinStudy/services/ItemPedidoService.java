@@ -1,13 +1,13 @@
 package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.constants.StatusPedido;
 import study.course.VaadinStudy.entities.ItemPedido;
 import study.course.VaadinStudy.entities.Pedido;
 import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.repository.ItemPedidoRepository;
+import study.course.VaadinStudy.services.base.BaseService;
 
 import java.util.List;
 

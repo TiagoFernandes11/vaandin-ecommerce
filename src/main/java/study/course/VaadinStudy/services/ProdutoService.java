@@ -1,19 +1,18 @@
 package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.entities.Categoria;
 import study.course.VaadinStudy.entities.Produto;
 import study.course.VaadinStudy.repository.CategoriaRepository;
 import study.course.VaadinStudy.repository.ProdutoRepository;
+import study.course.VaadinStudy.services.base.BaseService;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public class ProdutoService extends BaseService<Produto>{
+public class ProdutoService extends BaseService<Produto> {
 
     @Autowired
     private ProdutoRepository produtoRepository;
@@ -29,12 +28,12 @@ public class ProdutoService extends BaseService<Produto>{
         Optional<Produto> produtoDB = produtoRepository.findBySku(produto.getSku());
         if (produtoDB.isPresent()) {
             if (Objects.equals(produtoDB.get().getId(), produto.getId())) {
-                produtoRepository.save(produto);
+                save(produto);
                 return true;
             }
             return false;
         }
-        produtoRepository.save(produto);
+        save(produto);
         return true;
     }
 
@@ -46,7 +45,7 @@ public class ProdutoService extends BaseService<Produto>{
 
         produto.getCategorias().add(categoria);
         categoria.getProdutos().add(produto);
-        produtoRepository.save(produto);
+        save(produto);
         categoriaRepository.save(categoria);
 
     }
@@ -59,7 +58,7 @@ public class ProdutoService extends BaseService<Produto>{
 
         produto.getCategorias().remove(categoria);
         categoria.getProdutos().remove(produto);
-        produtoRepository.save(produto);
+        save(produto);
         categoriaRepository.save(categoria);
 
     }

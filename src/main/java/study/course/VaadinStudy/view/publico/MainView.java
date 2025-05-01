@@ -29,18 +29,18 @@ import java.util.List;
 public class MainView extends VerticalLayout {
 
     private Vitrine vitrine;
-    private AuthenticationContext authenticationContext;
-    private ProdutoService produtoService;
-    private UsuarioService usuarioService;
-    private PedidoService pedidoService;
-    private CategoriaService categoriaService;
+    private final AuthenticationContext authenticationContext;
+    private final ProdutoService produtoService;
+    private final UsuarioService usuarioService;
+    private final PedidoService pedidoService;
+    private final CategoriaService categoriaService;
 
 
     public MainView(AuthenticationContext authenticationContext, ProdutoService produtoService, UsuarioService usuarioService, PedidoService pedidoService, CategoriaService categoriaService) {
         this.authenticationContext = authenticationContext;
         this.produtoService = produtoService;
         this.usuarioService = usuarioService;
-        this.produtoService = produtoService;
+        this.pedidoService= pedidoService;
         this.categoriaService = categoriaService;
 
         List<Produto> produtos = this.produtoService.findAll();
@@ -55,7 +55,7 @@ public class MainView extends VerticalLayout {
 
         menuSuperior.addClassNames(LumoUtility.Width.FULL, LumoUtility.Border.ALL, LumoUtility.Padding.MEDIUM);
 
-        this.vitrine = new Vitrine(authenticationContext, produtos, usuarioService, pedidoService);
+        this.vitrine = new Vitrine(authenticationContext, produtos, usuarioService, this.pedidoService);
 
         getElement().removeAttribute("theme");
         add(menuSuperior, this.vitrine);
@@ -69,7 +69,9 @@ public class MainView extends VerticalLayout {
         buscaInput.setPlaceholder("O que você procura ?");
 
         Button buscarBtn = new Button("Buscar", event -> {
-
+            List<Produto> produtos = produtoService.findAll().stream()
+                    .filter(produto -> produto.getNome().toLowerCase().contains(buscaInput.getValue())).toList();
+            renderizarMenuEVitrine(produtos);
         });
 
         Span textoCategoria = new Span("Categorias: ");

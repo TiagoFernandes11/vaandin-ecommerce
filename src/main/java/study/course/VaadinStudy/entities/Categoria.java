@@ -6,12 +6,11 @@ import lombok.*;
 import java.util.List;
 import java.util.Objects;
 
-@Getter
-@Setter
+@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Categoria extends BaseEntity{
+public class Categoria extends BaseEntity {
 
     private String nome;
 
@@ -22,16 +21,4 @@ public class Categoria extends BaseEntity{
             inverseJoinColumns = @JoinColumn(name = "id_produto")
     )
     private List<Produto> produtos;
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Categoria categoria = (Categoria) o;
-        return Objects.equals(getId(), categoria.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
 }

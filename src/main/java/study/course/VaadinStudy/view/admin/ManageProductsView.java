@@ -30,7 +30,7 @@ import java.util.Objects;
 public class ManageProductsView extends VerticalLayout {
 
     private final ProdutoService produtoService;
-    private Grid<Produto> listaProdutos;
+    private final Grid<Produto> listaProdutos;
     private byte[] imagemProduto;
 
     public ManageProductsView(ProdutoService produtoService){
@@ -39,9 +39,13 @@ public class ManageProductsView extends VerticalLayout {
         var adicionarProdutoButton = new Button("Adicionar novo produto", event -> {
             abrirFormProduto(new Produto());
         });
+
+        HorizontalLayout buscaInputEBtn = getBuscaInputEBtn(produtoService);
+
         this.listaProdutos = new Grid<>(Produto.class, false);
 
         this.listaProdutos.addColumn(Produto::getId).setHeader("Id").setSortable(true);
+        this.listaProdutos.addColumn(Produto::getSku).setHeader("SKU").setSortable(true);
         this.listaProdutos.addColumn(Produto::getNome).setHeader("Nome").setSortable(true);
         this.listaProdutos.addColumn(Produto::getPreco).setHeader("Valor").setSortable(true);
         this.listaProdutos.addColumn(Produto::getEstoque).setHeader("Estoque").setSortable(true);
@@ -56,7 +60,26 @@ public class ManageProductsView extends VerticalLayout {
         });
 
         atualizarLista();
-        add(titulo, adicionarProdutoButton, listaProdutos);
+
+        add(titulo, adicionarProdutoButton, buscaInputEBtn, listaProdutos);
+    }
+
+    private HorizontalLayout getBuscaInputEBtn(ProdutoService produtoService) {
+        TextField buscaInput = new TextField();
+        buscaInput.setPlaceholder("Buscar por nome ou SKU");
+
+        Button buscarBtn = new Button("Buscar", event -> {
+            String termoBusca = buscaInput.getValue().toLowerCase();
+
+            var produtosFiltrados = produtoService.findAll().stream()
+                    .filter(produto -> produto.getNome().toLowerCase().contains(termoBusca)
+                            || String.valueOf(produto.getSku()).contains(termoBusca))
+                    .toList();
+
+            listaProdutos.setItems(produtosFiltrados);
+        });
+
+        return new HorizontalLayout(buscaInput, buscarBtn);
     }
 
     private void abrirFormProduto(Produto produto){
@@ -107,7 +130,7 @@ public class ManageProductsView extends VerticalLayout {
                     abrirDialogoDeErro("SKU " + produto.getSku() + " já esta cadastrado");
                 }
             } else {
-                    abrirDialogoDeErro("Todos os campos de texto devem ser preenchidos");
+                abrirDialogoDeErro("Todos os campos de texto devem ser preenchidos");
             }
         });
 
@@ -117,7 +140,6 @@ public class ManageProductsView extends VerticalLayout {
 
         dialog.open();
     }
-
 
     private boolean validarInput(Produto produto){
         return !produto.getNome().isBlank() && produto.getSku() > 0 && produto.getEstoque() != null && produto.getPreco() != null && produto.getPreco() > 0;
@@ -161,7 +183,7 @@ public class ManageProductsView extends VerticalLayout {
 
         horizontalLayout.add(botaoConfirmar, botaoCancelar);
 
-        verticalLayout.add("Tem certeza de que quer excluir o usuario ?");
+        verticalLayout.add("Tem certeza de que quer excluir o produto?");
         verticalLayout.add(horizontalLayout);
 
         dialog.add(verticalLayout);

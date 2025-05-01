@@ -42,11 +42,7 @@ public class UsuarioService extends BaseService<Usuario> {
     public boolean isUpdatable(Usuario usuario){
         Optional<Usuario> optionalUsuarioDB = usuarioRepository.findByEmail(usuario.getEmail().trim());
         if(optionalUsuarioDB.isPresent()){
-            if(Objects.equals(optionalUsuarioDB.get().getId(), usuario.getId())){;
-                return true;
-            } else {
-                return false;
-            }
+            return Objects.equals(optionalUsuarioDB.get().getId(), usuario.getId());
         } else {
             return true;
         }

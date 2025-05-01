@@ -18,6 +18,7 @@ import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.services.UsuarioService;
 import study.course.VaadinStudy.view.components.AdminLayout;
 
+import java.util.List;
 import java.util.Objects;
 
 @RolesAllowed("ROLE_ADMIN")
@@ -34,6 +35,20 @@ public class ManageUsersView extends VerticalLayout {
         var criarUsuarioButton = new Button("Criar novo usuario", event -> {
             abrirFormUsuario(new Usuario());
         });
+
+        TextField buscaInput = new TextField();
+        buscaInput.setPlaceholder("Buscar por nome");
+
+        Button buscarBtn = new Button("Buscar", event -> {
+            List<Usuario> usuarios = usuarioService.findAll().stream()
+                    .filter(usuario -> usuario.getNomeCompleto().toLowerCase().contains(buscaInput.getValue().toLowerCase()) ||
+                                               usuario.getEmail().toLowerCase().contains(buscaInput.getValue().toLowerCase())).toList();
+            atualizarLista(usuarios);
+        });
+
+        HorizontalLayout buscaInputEBtn = new HorizontalLayout();
+        buscaInputEBtn.add(buscaInput, buscarBtn);
+
         listaUsuarios = new Grid<>(Usuario.class, false);
 
         listaUsuarios.addColumn(Usuario::getId).setHeader("Id").setSortable(true);
@@ -53,8 +68,12 @@ public class ManageUsersView extends VerticalLayout {
 
         listaUsuarios.setMultiSort(true);
 
-        atualizarLista();
-        add(gridTitle, criarUsuarioButton, listaUsuarios);
+        VerticalLayout buscaEGrid = new VerticalLayout();
+        buscaEGrid.add(buscaInputEBtn, listaUsuarios);
+
+        atualizarLista(usuarioService.findAll());
+        System.out.println(usuarioService.findAll());
+        add(gridTitle, criarUsuarioButton, buscaEGrid);
     }
 
     private void abrirFormUsuario(Usuario usuario){
@@ -84,15 +103,15 @@ public class ManageUsersView extends VerticalLayout {
         horizontalLayout.add(new Button("Salvar", event -> {
             usuario.setNomeCompleto(inputNome.getValue());
             usuario.setEmail(inputEmail.getValue());
-            usuario.setRole(Role.ADMIN);
+            usuario.setRole(Role.USER);
 
             if(Objects.isNull(usuario.getId())){
                 if(inputSenha.getValue().equals(inputConfirmaSenha.getValue())){
                     usuario.setSenha(inputSenha.getValue());
-                    if(validarInputComSenha(usuario)){
+                    if(validarInputESenha(usuario)){
                         if(usuarioService.create(usuario)){
                             Notification.show("Usuario " + usuario.getEmail() + " criado");
-                            atualizarLista();
+                            atualizarLista(usuarioService.findAll());
                             dialog.close();
                         } else {
                             abrirDialogoDeErro("Email ja está em uso por outra conta");
@@ -108,7 +127,7 @@ public class ManageUsersView extends VerticalLayout {
                     if(usuarioService.isUpdatable(usuario)){
                         usuarioService.update(usuario);
                         Notification.show("Usuario id: " + usuario.getId() + " atualizado");
-                        atualizarLista();
+                        atualizarLista(usuarioService.findAll());
                         dialog.close();
                     } else {
                         abrirDialogoDeErro("Email ja cadastrado");
@@ -155,7 +174,7 @@ public class ManageUsersView extends VerticalLayout {
             usuarioService.delete(usuario);
             Notification.show("Usuário " + usuario.getEmail() + " removido");
             dialog.close();
-            atualizarLista();
+            atualizarLista(usuarioService.findAll());
         });
 
         var botaoCancelar = new Button("Cancelar", event -> {
@@ -172,7 +191,7 @@ public class ManageUsersView extends VerticalLayout {
         dialog.open();
     }
 
-    private boolean validarInputComSenha(Usuario usuario){
+    private boolean validarInputESenha(Usuario usuario){
         return (!usuario.getEmail().isBlank() || !usuario.getNomeCompleto().isBlank()) && usuario.getEmail().contains("@") && !usuario.getSenha().isBlank();
     }
 
@@ -180,7 +199,7 @@ public class ManageUsersView extends VerticalLayout {
         return (!usuario.getEmail().isBlank() || !usuario.getNomeCompleto().isBlank()) && usuario.getEmail().contains("@");
     }
 
-    private void atualizarLista(){
-        listaUsuarios.setItems(usuarioService.findAll()).addFilter(cliente -> Objects.equals(cliente.getRole(), "ROLE_USER"));
+    private void atualizarLista(List<Usuario> usuarios){
+        listaUsuarios.setItems(usuarios).addFilter(cliente -> Objects.equals(cliente.getRole(), "ROLE_USER"));
     }
 }

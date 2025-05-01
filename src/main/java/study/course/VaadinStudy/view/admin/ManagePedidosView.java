@@ -3,7 +3,9 @@ package study.course.VaadinStudy.view.admin;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
@@ -27,15 +29,39 @@ public class ManagePedidosView extends VerticalLayout {
         pedidoGrid.addColumn(Pedido::getStatus).setHeader("Status").setSortable(true);
         pedidoGrid.addColumn(Pedido::getTotal).setHeader("Valor Produtos").setSortable(true);
         pedidoGrid.addColumn(Pedido::isPago).setHeader("Pago").setSortable(true);
+        pedidoGrid.addColumn(Pedido::getDataCriacao).setHeader("Data criação").setSortable(true);
         pedidoGrid.addColumn(Pedido::getTipoDeEntrega).setHeader("Tipo entrega").setSortable(true);
         pedidoGrid.addComponentColumn(pedido -> new Button("Ver detalhes", event -> {
-
+            // TODO: implementar modal ou redirecionamento
         })).setHeader("Ações");
+
+        HorizontalLayout buscaInputEBtn = getBuscaInputEBtn(pedidoService);
 
         atualizarGrid();
 
         H2 titulo = new H2("Pedidos");
-        add(titulo, pedidoGrid);
+        add(titulo, buscaInputEBtn, pedidoGrid);
+    }
+
+    private HorizontalLayout getBuscaInputEBtn(PedidoService pedidoService) {
+        TextField buscaInput = new TextField();
+        buscaInput.setPlaceholder("Buscar por ID, status ou tipo de entrega");
+
+        Button buscarBtn = new Button("Buscar", event -> {
+            String termo = buscaInput.getValue().toLowerCase();
+
+            var pedidosFiltrados = pedidoService.findAll().stream()
+                    .filter(pedido ->
+                            String.valueOf(pedido.getId()).contains(termo)
+                                    || String.valueOf(pedido.getIdCliente()).contains(termo)
+                                    || pedido.getStatus().toLowerCase().contains(termo)
+                                    || pedido.getTipoDeEntrega().toLowerCase().contains(termo)
+                    ).toList();
+
+            pedidoGrid.setItems(pedidosFiltrados);
+        });
+
+        return new HorizontalLayout(buscaInput, buscarBtn);
     }
 
     private void atualizarGrid(){

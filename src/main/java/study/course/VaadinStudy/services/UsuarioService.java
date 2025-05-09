@@ -7,6 +7,7 @@ import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.repository.UsuarioRepository;
 import study.course.VaadinStudy.services.base.BaseService;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -27,6 +28,10 @@ public class UsuarioService extends BaseService<Usuario> {
     public Usuario find(String email){
         Optional<Usuario> optionalUsuario = usuarioRepository.findByEmail(email);
         return optionalUsuario.orElse(null);
+    }
+
+    public List<Usuario> findAllByTermoLike(String termo){
+        return usuarioRepository.findByTermoLike(termo);
     }
 
 

@@ -49,16 +49,7 @@ public class ManagePedidosView extends VerticalLayout {
 
         Button buscarBtn = new Button("Buscar", event -> {
             String termo = buscaInput.getValue().toLowerCase();
-
-            var pedidosFiltrados = pedidoService.findAll().stream()
-                    .filter(pedido ->
-                            String.valueOf(pedido.getId()).contains(termo)
-                                    || String.valueOf(pedido.getIdCliente()).contains(termo)
-                                    || pedido.getStatus().toLowerCase().contains(termo)
-                                    || pedido.getTipoDeEntrega().toLowerCase().contains(termo)
-                    ).toList();
-
-            pedidoGrid.setItems(pedidosFiltrados);
+            pedidoGrid.setItems(pedidoService.findAllByTermoLike(termo));
         });
 
         return new HorizontalLayout(buscaInput, buscarBtn);

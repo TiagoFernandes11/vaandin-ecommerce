@@ -70,13 +70,7 @@ public class ManageProductsView extends VerticalLayout {
 
         Button buscarBtn = new Button("Buscar", event -> {
             String termoBusca = buscaInput.getValue().toLowerCase();
-
-            var produtosFiltrados = produtoService.findAll().stream()
-                    .filter(produto -> produto.getNome().toLowerCase().contains(termoBusca)
-                            || String.valueOf(produto.getSku()).contains(termoBusca))
-                    .toList();
-
-            listaProdutos.setItems(produtosFiltrados);
+            listaProdutos.setItems(produtoService.findAllByTermo(termoBusca));
         });
 
         return new HorizontalLayout(buscaInput, buscarBtn);

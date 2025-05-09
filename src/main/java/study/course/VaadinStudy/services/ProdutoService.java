@@ -8,6 +8,7 @@ import study.course.VaadinStudy.repository.CategoriaRepository;
 import study.course.VaadinStudy.repository.ProdutoRepository;
 import study.course.VaadinStudy.services.base.BaseService;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -48,6 +49,10 @@ public class ProdutoService extends BaseService<Produto> {
         save(produto);
         categoriaRepository.save(categoria);
 
+    }
+
+    public List<Produto> findAllByTermo(String termo){
+        return produtoRepository.findByTermoLike(termo);
     }
 
     public void removerDaCategoria(String nomeCategoria, long idProduto) {

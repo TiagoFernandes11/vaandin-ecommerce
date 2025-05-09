@@ -57,6 +57,10 @@ public class PedidoService extends BaseService<Pedido> {
         return false;
     }
 
+    public List<Pedido> findAllByTermoLike(String termo){
+        return pedidoRepository.buscarPorTermo(termo);
+    }
+
     public Pedido findUltimoPedido(String emailCliente, String statusPedido) {
         Usuario usuario = usuarioRepository.findByEmail(emailCliente).orElse(null);
         if (Objects.nonNull(usuario)) {

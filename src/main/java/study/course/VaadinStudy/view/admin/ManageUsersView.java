@@ -40,10 +40,8 @@ public class ManageUsersView extends VerticalLayout {
         buscaInput.setPlaceholder("Buscar por nome");
 
         Button buscarBtn = new Button("Buscar", event -> {
-            List<Usuario> usuarios = usuarioService.findAll().stream()
-                    .filter(usuario -> usuario.getNomeCompleto().toLowerCase().contains(buscaInput.getValue().toLowerCase()) ||
-                                               usuario.getEmail().toLowerCase().contains(buscaInput.getValue().toLowerCase())).toList();
-            atualizarLista(usuarios);
+            String termo = buscaInput.getValue();
+            atualizarLista(usuarioService.findAllByTermoLike(termo));
         });
 
         HorizontalLayout buscaInputEBtn = new HorizontalLayout();

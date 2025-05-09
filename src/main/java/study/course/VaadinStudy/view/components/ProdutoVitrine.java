@@ -5,6 +5,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
@@ -56,6 +57,7 @@ public class ProdutoVitrine extends VerticalLayout {
             Usuario usuario = usuarioService.find(this.authenticationContext.getPrincipalName().orElse(null));
             if(Objects.nonNull(usuario)){
                 pedidoService.adicionarProduto(usuario.getId(), produto.getId());
+                Notification.show("Produto " + produto.getNome() + " adicionado ao carrinho");
             } else {
                 UI.getCurrent().navigate(LoginView.class);
             }

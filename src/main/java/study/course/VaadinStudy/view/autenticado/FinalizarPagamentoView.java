@@ -126,7 +126,7 @@ public class FinalizarPagamentoView extends VerticalLayout {
         HorizontalLayout validadeCVVeParcelas = new HorizontalLayout();
         validadeCVVeParcelas.addClassNames(LumoUtility.Width.FULL);
 
-        DatePicker validadeCartaoInput = new DatePicker("Start date");
+        DatePicker validadeCartaoInput = new DatePicker("Data de validade");
         TextField codigoSegurancaInput = new TextField("Cod de segurança");
 
         Optional<Cartao> cartaoSalvo = cartaoService.findAtivoByEmail(authenticationContext.getPrincipalName().orElse(null));

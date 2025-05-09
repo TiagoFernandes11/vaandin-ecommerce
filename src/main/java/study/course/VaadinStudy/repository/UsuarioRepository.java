@@ -16,7 +16,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByEmail(String email);
 
-    @Query("SELECT u FROM Usuario WHERE " +
+    @Query("SELECT u FROM Usuario u WHERE " +
             "CAST(u.nomeCompleto AS STRING) ILIKE CONCAT('%', :termo, '%') OR " +
             "CAST(u.email as STRING) ILIKE CONCAT('%', :termo, '%')")
     List<Usuario> findByTermoLike(@Param("termo") String termo);

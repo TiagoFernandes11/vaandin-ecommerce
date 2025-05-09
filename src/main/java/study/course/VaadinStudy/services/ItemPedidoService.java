@@ -31,7 +31,7 @@ public class ItemPedidoService extends BaseService<ItemPedido> {
         if(pedido != null){
             return pedido.getItens();
         } else {
-            return null;
+            return List.of();
         }
     }
 }

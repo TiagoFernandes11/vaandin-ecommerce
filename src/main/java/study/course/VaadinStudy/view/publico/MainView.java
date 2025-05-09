@@ -69,8 +69,7 @@ public class MainView extends VerticalLayout {
         buscaInput.setPlaceholder("O que você procura ?");
 
         Button buscarBtn = new Button("Buscar", event -> {
-            List<Produto> produtos = produtoService.findAll().stream()
-                    .filter(produto -> produto.getNome().toLowerCase().contains(buscaInput.getValue())).toList();
+            List<Produto> produtos = produtoService.findAllByTermo(buscaInput.getValue());
             renderizarMenuEVitrine(produtos);
         });
 

@@ -1,6 +1,7 @@
 package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.entities.Cartao;
 import study.course.VaadinStudy.entities.Usuario;

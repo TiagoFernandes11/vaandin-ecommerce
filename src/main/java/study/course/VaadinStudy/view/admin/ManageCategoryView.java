@@ -116,11 +116,11 @@ public class ManageCategoryView extends VerticalLayout implements HasUrlParamete
 
     private void atualizarProdutosParaAdicionar() {
         this.categoria = categoriaService.find(idCategoria);
-        produtosParaAdicionarGrid.setItems(produtoService.findAll().stream().filter(produto -> !categoria.getProdutos().contains(produto)).toList());
+        produtosParaAdicionarGrid.setItems(produtoService.findAllNotByCategoriaId(idCategoria));
     }
 
     private FlexLayout criatListaProdutosFlexLayout(){
-        List<Produto> produtosAdicionados = produtoService.findAll().stream().filter(produto -> categoria.getProdutos().contains(produto)).toList();
+        List<Produto> produtosAdicionados = produtoService.findAllByCategoriaId(categoria.getId());
 
         FlexLayout listaDeProdutos = new FlexLayout();
         listaDeProdutos.setFlexDirection(FlexLayout.FlexDirection.ROW);

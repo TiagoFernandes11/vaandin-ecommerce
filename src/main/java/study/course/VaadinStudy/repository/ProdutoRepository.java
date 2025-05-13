@@ -18,4 +18,10 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
             "CAST(p.nome AS STRING) LIKE CONCAT('%', :termo, '%') OR " +
             "CAST(p.sku AS STRING) LIKE CONCAT('%', :termo, '%')")
     List<Produto> findByTermoLike(@Param("termo") String termo);
+
+    @Query("SELECT p FROM Produto p JOIN p.categorias c WHERE c.id = :categoriaId")
+    List<Produto> findAllByCategoriaId(@Param("categoriaId") Long categoriaId);
+
+    @Query("SELECT p FROM Produto p LEFT JOIN p.categorias c WHERE c.id <> :categoriaId OR c.id IS NULL")
+    List<Produto> findAllByNotCategoriaId(@Param("categoriaId") Long categoriaId);
 }

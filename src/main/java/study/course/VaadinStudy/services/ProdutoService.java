@@ -25,6 +25,11 @@ public class ProdutoService extends BaseService<Produto> {
         super(produtoRepository);
     }
 
+    @Override
+    public List<Produto> findAll(){
+        return produtoRepository.findAll();
+    }
+
     public boolean create(Produto produto) {
         Optional<Produto> produtoDB = produtoRepository.findBySku(produto.getSku());
         if (produtoDB.isPresent()) {
@@ -66,5 +71,13 @@ public class ProdutoService extends BaseService<Produto> {
         save(produto);
         categoriaRepository.save(categoria);
 
+    }
+
+    public List<Produto> findAllByCategoriaId(Long idCategoria){
+        return produtoRepository.findAllByCategoriaId(idCategoria);
+    }
+
+    public List<Produto> findAllNotByCategoriaId(Long idCategoria){
+        return produtoRepository.findAllByNotCategoriaId(idCategoria);
     }
 }

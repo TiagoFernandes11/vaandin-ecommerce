@@ -1,16 +1,16 @@
 package study.course.VaadinStudy.view.publico;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import study.course.VaadinStudy.entities.Categoria;
+import org.springframework.data.domain.Page;
 import study.course.VaadinStudy.entities.Produto;
 import study.course.VaadinStudy.services.CategoriaService;
 import study.course.VaadinStudy.services.PedidoService;
@@ -19,16 +19,17 @@ import study.course.VaadinStudy.services.ProdutoService;
 import study.course.VaadinStudy.view.components.MainLayout;
 import study.course.VaadinStudy.view.components.Vitrine;
 
-import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Home")
 @AnonymousAllowed
-public class MainView extends VerticalLayout {
+public class MainView extends VerticalLayout implements HasUrlParameter<Integer> {
+
+    private final int PAGE_SIZE_PRODUTOS = 10;
 
     private Vitrine vitrine;
+    private Integer paginaAtual;
     private final AuthenticationContext authenticationContext;
     private final ProdutoService produtoService;
     private final UsuarioService usuarioService;
@@ -42,10 +43,46 @@ public class MainView extends VerticalLayout {
         this.usuarioService = usuarioService;
         this.pedidoService= pedidoService;
         this.categoriaService = categoriaService;
+    }
 
-        List<Produto> produtos = this.produtoService.findAll();
 
-        renderizarMenuEVitrine(produtos);
+    @Override
+    public void setParameter(BeforeEvent beforeEvent, @OptionalParameter Integer page) {
+        this.paginaAtual = (page == null || page < 1) ? 0 : page;
+
+        int offSet = paginaAtual < 1 ? 0 : (paginaAtual - 1) * PAGE_SIZE_PRODUTOS;
+        Page<Produto> produtosPages = this.produtoService.findAll(offSet, PAGE_SIZE_PRODUTOS);
+
+        renderizarMenuEVitrine(produtosPages.getContent());
+        renderizarBotoesDePagina(produtosPages);
+    }
+
+    private void renderizarBotoesDePagina(Page<Produto> pages) {
+        HorizontalLayout botoes = new HorizontalLayout();
+        botoes.setWidthFull();
+        botoes.addClassNames(LumoUtility.Display.FLEX, LumoUtility.FlexDirection.ROW, LumoUtility.JustifyContent.CENTER);
+
+        Button btnAnterior = new Button("Pagina anterior", event -> {
+            UI.getCurrent().navigate(MainView.class, this.paginaAtual - 1);
+        });
+
+        btnAnterior.addClassNames(LumoUtility.Width.AUTO);
+
+        Button btnProxima = new Button("Próxima pagina", event -> {
+            UI.getCurrent().navigate(MainView.class, this.paginaAtual + 1);
+        });
+
+        btnProxima.addClassNames(LumoUtility.Width.AUTO);
+
+        if(pages.hasPrevious()){
+            botoes.add(btnAnterior);
+        }
+
+        if(pages.hasNext()){
+            botoes.add(btnProxima);
+        }
+
+        add(botoes);
     }
 
     private void renderizarMenuEVitrine(List<Produto> produtos){
@@ -76,7 +113,7 @@ public class MainView extends VerticalLayout {
         Span textoCategoria = new Span("Categorias: ");
 
         Button categoriaTodosBtn = new Button("Todos", event -> {
-            List<Produto> produtos = produtoService.findAll();
+            List<Produto> produtos = produtoService.findAll(0, 10).getContent();
             renderizarMenuEVitrine(produtos);
         });
 
@@ -93,4 +130,5 @@ public class MainView extends VerticalLayout {
 
         return menuSuperior;
     }
+
 }

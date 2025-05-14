@@ -1,6 +1,9 @@
 package study.course.VaadinStudy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.entities.Categoria;
 import study.course.VaadinStudy.entities.Produto;
@@ -28,6 +31,14 @@ public class ProdutoService extends BaseService<Produto> {
     @Override
     public List<Produto> findAll(){
         return produtoRepository.findAll();
+    }
+
+    public Page<Produto> findAll(Pageable pageable){
+        return produtoRepository.findAll(pageable);
+    }
+
+    public Page<Produto> findAll(int offset, int pageSize){
+        return this.findAll(PageRequest.of((offset / pageSize), pageSize));
     }
 
     public boolean create(Produto produto) {

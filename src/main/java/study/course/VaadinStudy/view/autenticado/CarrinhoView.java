@@ -1,6 +1,5 @@
 package study.course.VaadinStudy.view.autenticado;
 
-import com.nimbusds.jose.shaded.gson.Gson;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
@@ -24,12 +23,6 @@ import study.course.VaadinStudy.view.components.MainLayout;
 import study.course.VaadinStudy.view.components.Vitrine;
 import study.course.VaadinStudy.view.publico.MainView;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
@@ -132,7 +125,7 @@ public class CarrinhoView extends VerticalLayout {
             bairro.setValue("");
 
             String cep = inputCep.getValue();
-            Endereco enderecoAPartirDoCep = getEnderecoPeloCep(cep);
+            Endereco enderecoAPartirDoCep = enderecoService.getEnderecoPeloCep(cep);
 
             rua.setValue(enderecoAPartirDoCep.getLogradouro());
             numero.setValue("");
@@ -229,33 +222,4 @@ public class CarrinhoView extends VerticalLayout {
                 endereco.getBairro() != null && !endereco.getBairro().isBlank();
     }
 
-
-    private Endereco getEnderecoPeloCep(String cep){
-        String urlParaChamada = "http://viacep.com.br/ws/" + cep + "/json";
-
-        try{
-            URL url = new URL(urlParaChamada);
-            HttpURLConnection conexao = (HttpURLConnection) url.openConnection();
-
-            if (conexao.getResponseCode() != 200)
-                throw new RuntimeException("HTTP error code : " + conexao.getResponseCode());
-
-            BufferedReader resposta = new BufferedReader(new InputStreamReader((conexao.getInputStream())));
-            StringBuilder jsonEmString = new StringBuilder();
-            String linha;
-
-            while ((linha = resposta.readLine()) != null) {
-                jsonEmString.append(linha);
-            }
-
-            Gson gson = new Gson();
-
-            return gson.fromJson(jsonEmString.toString(), Endereco.class);
-
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Erro na url de busca", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao buscar endereço pelo CEP", e);
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package study.course.VaadinStudy.services;
 
+import com.nimbusds.jose.shaded.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import study.course.VaadinStudy.entities.Endereco;
@@ -7,6 +8,12 @@ import study.course.VaadinStudy.entities.Usuario;
 import study.course.VaadinStudy.repository.EnderecoRepository;
 import study.course.VaadinStudy.services.base.BaseService;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -63,5 +70,34 @@ public class EnderecoService extends BaseService<Endereco> {
         }
 
         save(endereco);
+    }
+
+    public Endereco getEnderecoPeloCep(String cep){
+        String urlParaChamada = "http://viacep.com.br/ws/" + cep + "/json";
+
+        try{
+            URL url = new URL(urlParaChamada);
+            HttpURLConnection conexao = (HttpURLConnection) url.openConnection();
+
+            if (conexao.getResponseCode() != 200)
+                throw new RuntimeException("HTTP error code : " + conexao.getResponseCode());
+
+            BufferedReader resposta = new BufferedReader(new InputStreamReader((conexao.getInputStream())));
+            StringBuilder jsonEmString = new StringBuilder();
+            String linha;
+
+            while ((linha = resposta.readLine()) != null) {
+                jsonEmString.append(linha);
+            }
+
+            Gson gson = new Gson();
+
+            return gson.fromJson(jsonEmString.toString(), Endereco.class);
+
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Erro na url de busca", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao buscar endereço pelo CEP", e);
+        }
     }
 }

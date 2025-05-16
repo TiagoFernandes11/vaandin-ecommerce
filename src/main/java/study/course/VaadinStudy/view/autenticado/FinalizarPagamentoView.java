@@ -24,6 +24,7 @@ import study.course.VaadinStudy.entities.ItemPedido;
 import study.course.VaadinStudy.entities.Pedido;
 import study.course.VaadinStudy.entities.Produto;
 import study.course.VaadinStudy.services.CartaoService;
+import study.course.VaadinStudy.services.EmailService;
 import study.course.VaadinStudy.services.PedidoService;
 import study.course.VaadinStudy.services.UsuarioService;
 import study.course.VaadinStudy.view.components.MainLayout;
@@ -40,12 +41,14 @@ public class FinalizarPagamentoView extends VerticalLayout {
     private final UsuarioService usuarioService;
     private final PedidoService pedidoService;
     private final CartaoService cartaoService;
+    private final EmailService emailService;
 
-    public FinalizarPagamentoView(AuthenticationContext authenticationContext, UsuarioService usuarioService, PedidoService pedidoService, CartaoService cartaoService) {
+    public FinalizarPagamentoView(AuthenticationContext authenticationContext, UsuarioService usuarioService, PedidoService pedidoService, CartaoService cartaoService, EmailService emailService) {
         this.authenticationContext = authenticationContext;
         this.usuarioService = usuarioService;
         this.pedidoService = pedidoService;
         this.cartaoService = cartaoService;
+        this.emailService = emailService;
 
         H2 tituloH2 = new H2("Pagamento");
 
@@ -340,6 +343,9 @@ public class FinalizarPagamentoView extends VerticalLayout {
     private void pagarPedido(Pedido pedido){
         pedido.setStatus(StatusPedido.PAGO);
         pedidoService.save(pedido);
+        emailService.enviarEmail("Você comprou",
+                "Obrigado por realizar uma compra no Vaadin Ecommerce, o id do seu pedido é: " + pedido.getId(),
+                authenticationContext.getPrincipalName().get());
         UI.getCurrent().navigate(CompraFinalizadaView.class);
     }
 }

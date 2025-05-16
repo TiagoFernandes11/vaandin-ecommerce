@@ -9,9 +9,11 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.security.AuthenticationContext;
 import org.springframework.stereotype.Component;
 import study.course.VaadinStudy.constants.Role;
 import study.course.VaadinStudy.entities.Usuario;
+import study.course.VaadinStudy.services.EmailService;
 import study.course.VaadinStudy.services.UsuarioService;
 import study.course.VaadinStudy.view.publico.LoginView;
 
@@ -22,10 +24,12 @@ import java.util.List;
 public class RegisterForm extends Composite<Div> implements HasElement {
 
     protected final UsuarioService usuarioService;
+    protected final EmailService emailService;
 
-    public RegisterForm(UsuarioService usuarioService){
+    public RegisterForm(UsuarioService usuarioService, EmailService emailService){
         //Injeção de dependencia
         this.usuarioService = usuarioService;
+        this.emailService = emailService;
 
         //declaração dos elementos
         var form = new VerticalLayout();
@@ -79,6 +83,7 @@ public class RegisterForm extends Composite<Div> implements HasElement {
         if(foiCadastrado){
             UI.getCurrent().navigate(LoginView.class);
             Notification.show("Registrado com sucesso");
+            emailService.enviarEmail("Bem vindo ao Vaadin Ecommerce", "Você criou a conta no Vaadin Ecommerce", usuario.getEmail());
         } else {
             Notification.show("Já existe um cadastro com esse email");
         }

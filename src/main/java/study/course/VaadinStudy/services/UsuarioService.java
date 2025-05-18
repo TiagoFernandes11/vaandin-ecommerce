@@ -44,6 +44,12 @@ public class UsuarioService extends BaseService<Usuario> {
         return true;
     }
 
+    @Override
+    public void save(Usuario entidade) {
+        entidade.setSenha(passwordEncoder.encode(entidade.getSenha()));
+        super.save(entidade);
+    }
+
     public boolean isUpdatable(Usuario usuario){
         Optional<Usuario> optionalUsuarioDB = usuarioRepository.findByEmail(usuario.getEmail().trim());
         if(optionalUsuarioDB.isPresent()){

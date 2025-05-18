@@ -1,9 +1,6 @@
 package study.course.VaadinStudy.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -18,6 +15,7 @@ public class Email {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ElementCollection
     private Map<String, String> headers;
 
     private LocalDateTime enviadoData;

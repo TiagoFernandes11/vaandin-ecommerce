@@ -20,7 +20,7 @@ public class AuditAwareImpl implements AuditorAware<String> {
     @Override
     public Optional<String> getCurrentAuditor() {
         return authenticationContext.isAuthenticated() ?
-                Optional.of(usuarioService.find(authenticationContext.getPrincipalName().orElse(null)).getNomeCompleto())
+                Optional.of(authenticationContext.getPrincipalName().get())
                 : Optional.of("Anonymous");
     }
 }

@@ -109,8 +109,8 @@ public class PedidoService extends BaseService<Pedido> {
             itemPedidoRepository.save(itemPedido);
         } else {
             ItemPedido novoItemPedido = new ItemPedido(produto, 1, produto.getPreco());
-            itemPedidoRepository.save(novoItemPedido);
             pedido.getItens().add(novoItemPedido);
+            itemPedidoRepository.save(novoItemPedido);
         }
 
         pedido.setTotal(pedido.getItens().stream().mapToDouble(ItemPedido::getSubTotal).sum());
